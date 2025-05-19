@@ -20,21 +20,20 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Pisces","darkmode":true,"version":"8.23.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js" defer></script>
 
-    <meta name="description" content="Framework·  in-order pipeline and pipeline stalls. what we need in scheduling-model and how gcc and llvm represent it. write a scheduling-model. adjusting your scheduling-model for better performance.">
+    <meta name="description" content="Scheduling Models 1 – In-Order Pipeline and Pipeline Stalls.· Framework·  in-order pipeline and pipeline stalls. (this blog) what we need in scheduling-model and how gcc and llvm represent it. write a">
 <meta property="og:type" content="article">
 <meta property="og:title" content="sched-model-draft">
 <meta property="og:url" content="http://example.com/2025/05/16/sched-model-draft/index.html">
 <meta property="og:site_name" content="andreww&#39;s blog">
-<meta property="og:description" content="Framework·  in-order pipeline and pipeline stalls. what we need in scheduling-model and how gcc and llvm represent it. write a scheduling-model. adjusting your scheduling-model for better performance.">
+<meta property="og:description" content="Scheduling Models 1 – In-Order Pipeline and Pipeline Stalls.· Framework·  in-order pipeline and pipeline stalls. (this blog) what we need in scheduling-model and how gcc and llvm represent it. write a">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="http://example.com/2025/05/img/sched-model-draft/image-20250516164650839.png">
 <meta property="og:image" content="https://myhsu.xyz/images/p670-uarch.png">
 <meta property="article:published_time" content="2025-05-16T14:19:29.000Z">
-<meta property="article:modified_time" content="2025-05-17T04:32:17.267Z">
+<meta property="article:modified_time" content="2025-05-19T15:03:27.419Z">
 <meta property="article:author" content="yinghao">
 <meta property="article:tag" content="instruction scheduling">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://example.com/2025/05/img/sched-model-draft/image-20250516164650839.png">
+<meta name="twitter:image" content="https://myhsu.xyz/images/p670-uarch.png">
 
 
 <link rel="canonical" href="http://example.com/2025/05/16/sched-model-draft/">
@@ -134,7 +133,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Framework"><span class="nav-text">Framework</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Extended-in-order-pipeline"><span class="nav-text">Extended in-order pipeline</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Extended-EX-stage-pipeline"><span class="nav-text">Extended EX stage pipeline</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Pipelined-or-Not-Pipelined"><span class="nav-text">Pipelined or Not-Pipelined</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Real-Pipeline"><span class="nav-text">Real Pipeline</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Pipeline-Stalls"><span class="nav-text">Pipeline Stalls</span></a></li></ol></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Scheduling-Models-1-%E2%80%93-In-Order-Pipeline-and-Pipeline-Stalls"><span class="nav-text">Scheduling Models 1 – In-Order Pipeline and Pipeline Stalls.</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Framework"><span class="nav-text">Framework</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Extended-in-order-pipeline"><span class="nav-text">Extended in-order pipeline</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Extended-EX-stage-pipeline"><span class="nav-text">Extended EX stage pipeline</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Pipelined-or-Not-Pipelined"><span class="nav-text">Pipelined or Not-Pipelined</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Real-Pipeline"><span class="nav-text">Real Pipeline</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Pipeline-Stalls"><span class="nav-text">Pipeline Stalls</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#References"><span class="nav-text">References</span></a></li></ol></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -143,7 +142,7 @@
     <img class="site-author-image" itemprop="image" alt="yinghao"
       src="/images/avatar.png">
   <p class="site-author-name" itemprop="name">yinghao</p>
-  <div class="site-description" itemprop="description"></div>
+  <div class="site-description" itemprop="description">Still new to blogging — feel free to email me if something’s off. Happy to learn and figure things out together!</div>
 </div>
 <div class="site-state-wrap animated">
   <nav class="site-state">
@@ -154,8 +153,9 @@
         </a>
       </div>
       <div class="site-state-item site-state-tags">
+          <a href="/tags/">
         <span class="site-state-item-count">2</span>
-        <span class="site-state-item-name">tags</span>
+        <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
 </div>
@@ -220,7 +220,7 @@
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
       <meta itemprop="name" content="andreww's blog">
-      <meta itemprop="description" content="">
+      <meta itemprop="description" content="Still new to blogging — feel free to email me if something’s off. Happy to learn and figure things out together!">
     </span>
 
     <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
@@ -252,17 +252,20 @@
     
     
     
-    <div class="post-body" itemprop="articleBody"><h2 id="Framework">Framework<a class="anchor" href="#Framework">·</a></h2>
+    <div class="post-body" itemprop="articleBody"><h1 id="Scheduling-Models-1-–-In-Order-Pipeline-and-Pipeline-Stalls">Scheduling Models 1 – In-Order Pipeline and Pipeline Stalls.<a class="anchor" href="#Scheduling-Models-1-–-In-Order-Pipeline-and-Pipeline-Stalls">·</a></h1>
+<h2 id="Framework">Framework<a class="anchor" href="#Framework">·</a></h2>
 <ol>
-<li>in-order pipeline and pipeline stalls.</li>
+<li>in-order pipeline and pipeline stalls. (this blog)</li>
 <li>what we need in scheduling-model and how gcc and llvm represent it.</li>
 <li>write a scheduling-model.</li>
 <li>adjusting your scheduling-model for better performance.</li>
-<li>out-of-order blogs recommendation.</li>
+<li>out-of-order docs recommendation.</li>
 </ol>
 <h2 id="Extended-in-order-pipeline">Extended in-order pipeline<a class="anchor" href="#Extended-in-order-pipeline">·</a></h2>
 <h3 id="Extended-EX-stage-pipeline">Extended EX stage pipeline<a class="anchor" href="#Extended-EX-stage-pipeline">·</a></h3>
+<blockquote>
 <p>我不想在这里讨论基本的五级顺序流水线概念，你可以在任何一本介绍计算机体系结构的书上找到相关的内容，所以我会假设你已经了解基本的顺序流水线知识、流水线冒险（结构冒险、数据冒险、控制冒险）、数据前推，如果你对提到的任何关键词有疑问，请先补充相关的知识 😉</p>
+</blockquote>
 <pre><code class="highlight mermaid">flowchart LR
     IF[IF]
     ID[ID]
@@ -274,11 +277,8 @@
     ID --&gt; EX
     EX --&gt; MEM
     MEM --&gt; WB</code></pre>
-<p>基本的五级流水线（取指，译码，执行，访存，写回）由于做了简化，并没有暴露其中的细节，从图中看起来所有的执行单元被抽象成一个 EX stage，而真实的 cpu pipeline 不仅要处理基本的整数运算，还需要处理浮点运算以及它们各自的加减乘除，会包含一些更复杂的功能单元，比如乘法器，浮点加法器等。</p>
-<p>假设我们有一个可以处理各种整数运算，浮点加减乘除运算的 pipeline，从黑盒子的角度来看，它可能长成这个样子。</p>
-<blockquote>
-<p>不同硬件实现不同，可能有些 pipeline 会把整数乘法单元和除法单元分开。</p>
-</blockquote>
+<p>如上图，基本的五级流水线（取指，译码，执行，访存，写回）由于做了简化，并没有暴露其中的细节。从图中看起来所有的执行单元被抽象成一个 EX stage，而真实的 CPU 流水线不仅要处理基本的整数运算，还需要处理浮点运算以及它们各自的加减乘除，所以一个完整的 EX stage 至少会包括 ALU 单元运算，乘法除法器运算单元，浮点加减运算单元，浮点乘除运算单元。</p>
+<p>假设我们有一个可以处理各种整数运算，浮点加减乘除运算的流水线，从黑盒子的角度来看，它可能长成下图这个样子。</p>
 <pre><code class="highlight mermaid">flowchart LR
     IF[IF]
     ID[ID]
@@ -302,31 +302,34 @@
     FP_MUL --&gt;| | MEM
     FP_DIV --&gt;| | MEM
     MEM --&gt;| | WB</code></pre>
+<blockquote>
+<p>不同硬件实现不同，可能有些流水线会把一些功能单元做合并或拆分，比如将 MUL 和 DIV 分开，分别负责整数乘法和除法。</p>
+</blockquote>
 <p>假设我们现在有这样一段汇编代码，</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">add    a0, a1  --&gt; integer unit</span><br><span class="line">mul    a2, a3  --&gt; mul/div</span><br><span class="line">fp_mul a4, a5  --&gt; fp mul</span><br><span class="line">fp_div a6, a7  --&gt; fp div</span><br></pre></td></tr></table></figure>
 <p>当每条指令走过 ID 阶段以后，会进入各自的功能单元执行，互不干扰。</p>
 <h3 id="Pipelined-or-Not-Pipelined">Pipelined or Not-Pipelined<a class="anchor" href="#Pipelined-or-Not-Pipelined">·</a></h3>
-<p>由于存在长周期指令，比如乘法，除法指令，基本上不可能一个周期完成，所以每个功能单元的占用时间是不同的。</p>
-<p>假设目前我们所有的功能单元都是进入一条指令以后就不能再进入第二条指令了，也就是说，当出现如下顺序的汇编时，</p>
+<p>像大部分简单的 ALU 指令，比如加减法指令，通常只需要一个周期就能够完成，但由于存在长周期指令，比如，乘法指令，除法指令，由于其本身硬件实现的复杂性，所以基本上不可能一个在周期内完成（除非你压缩 CPU 的频率，让其一个周期的时间变长，但这没有意义），所以实际上每个功能单元占用的周期数是不同的。</p>
+<p>假设目前我们所有的功能单元同一时间只能执行一条指令，也就是说，当进入一条指令以后，就不能再进入第二条使用相同功能单元的指令了。当出现如下顺序的汇编时，</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mul a0, a1</span><br><span class="line">mul a2, a3</span><br></pre></td></tr></table></figure>
-<p>如果 mul 指令不能在一个周期完成执行，下一条 mul 就会进入在 MUL 功能单元之前被阻塞住，也就是出现了 pipeline 暂停的行为。</p>
-<p>上述对 MUL功能单元的描述，意思就是说，这个功能单元是非流水线化的（Not-Pipelined）。</p>
-<p>显然这种 pipeline 是非常慢的，会出现大量因为功能单元被占用导致的流水线暂停，所以这里我们可以引入流水线化的功能单元（Pipelined function unit）。</p>
+<p>如果 <code>mul</code> 指令不能在一个周期完成执行，下一条 <code>mul</code> 就会进入在 <code>MUL/DIV</code> 功能单元之前被阻塞住，也就是出现了流水线暂停的行为。</p>
+<p>上述对 <code>MUL/DIV</code> 功能单元的描述，意思就是说，这个功能单元是非流水线化的（Not-Pipelined）。</p>
+<p>显然这种流水线是非常慢的，会出现大量因为功能单元被占用导致的流水线暂停，所以这里我们可以引入流水线化（Pipelined）的功能单元来进行加速，允许多个需要同一功能单元的指令同时进行。</p>
 <pre><code class="highlight mermaid">flowchart LR
     IF[IF]
     ID[ID]
     INT_OP[Integer Unit]
-    FP_ADD0[FP Add/Sub 0]
-    FP_ADD1[FP Add/Sub 1]
-    FP_ADD2[FP Add/Sub 2]
-    FP_MUL0[FP Mul 0]
-    FP_MUL1[FP Mul 1]
-    FP_MUL2[FP Mul 2]
-    FP_MUL3[FP Mul 3]
+    FP_ADD0[FP Add/Sub Stage 0]
+    FP_ADD1[FP Add/Sub Stage 1]
+    FP_ADD2[FP Add/Sub Stage 2]
+    FP_MUL0[FP Mul Stage 0]
+    FP_MUL1[FP Mul Stage 1]
+    FP_MUL2[FP Mul Stage 2]
+    FP_MUL3[FP Mul Stage 3]
     FP_DIV[FP DIV]
-    MUL0[MUL/DIV0]
-    MUL1[MUL/DIV1]
-    MUL2[MUL/DIV2]
+    MUL0[MUL/DIV Stage 0]
+    MUL1[MUL/DIV Stage 1]
+    MUL2[MUL/DIV Stage 2]
     MEM[MEM]
     WB[WB]
 
@@ -352,19 +355,43 @@
     FP_MUL0 --&gt; FP_MUL1
     FP_MUL1 --&gt; FP_MUL2
     FP_MUL2 --&gt; FP_MUL3</code></pre>
-<p>如上图，FP Mul 单元，Mul/Div 单元以及 FP Add/Sub 单元均已被流水线化。</p>
+<p>为了解决上述性能瓶颈，我们将 <code>MUL/DIV</code> 单元流水线化至三级：</p>
+<ul>
+<li>Stage 0：对操作数进行部分积预处理；</li>
+<li>Stage 1：计算部分积；</li>
+<li>Stage 2：生成最终结果并写入目标寄存器。</li>
+</ul>
+<blockquote>
+<p>这里只是举个例子，真实的情况大概率与我所说的不同，这里只是帮助理解如何进行功能单元的流水线化，具体乘法器到底是如何实现，要去阅读相关资料。</p>
+</blockquote>
+<p>在满载状态下，该流水线每个周期可以接受一条新的乘除法指令。虽然每条指令仍然需要 3 个周期才能完成，但由于各阶段可并发运行，总体吞吐率显著提升。</p>
+<p>在图中，<code>FP Mul</code> 单元，<code>Mul/Div</code> 单元以及 <code>FP Add/Sub</code> 单元均已被流水线化，该流水线可以同时执行四条浮点乘法指令，三条整数乘除法指令，三条浮点加减法指令，而 <code>FP DIV</code>由于没有流水线化，同一时刻只能有一条指令位于该功能单元内。</p>
+<blockquote>
+<p>这里 <code>Integer Unit</code>也是流水线化的，因为本身就用于执行单周期指令。</p>
+</blockquote>
 <p>当再次出现如下顺序的汇编时，流水线将不会因为资源占用导致暂停了。</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mul a0, a1</span><br><span class="line">mul a2, a3</span><br></pre></td></tr></table></figure>
 <blockquote>
 <ol>
-<li>大部分功能单元都是流水线化的，但是像 FP Div 这种使用频率较少的功能单元，做成非流水线化的通常情况下也不会导致流水线频繁暂停。做成非流水线化的反而能使 pipeline 更简单。</li>
-<li>这里把功能单元拆成多个 stages 是为了帮助理解，实际的 pipeline 图不会这么画，是否是流水线化的也需要参考对应的白皮书文档。很多 pipeline 信息都是需要从白皮书中获取的。</li>
+<li>大部分功能单元都是流水线化的，但是像 <code>FP Div</code> 这种使用频率很少的功能单元，即使做成非流水线化，通常情况下很少会导致流水线暂停。（本身使用<code>FP Div</code>功能单元的指令就比较少，就算出现了多条使用该功能单元的指令，调度器也不会将它们排在一起。）因此，将使用频率很少的功能单元做成非流水线化的，不仅可以减少芯片流水线复杂度，也不会有明显的负面影响。</li>
+<li>这里把功能单元拆成多个 stages 是为了帮助理解，实际的流水线图不会这么画，一个功能单元是否是流水线化的也需要参考对应的白皮书文档。（很多流水线的实际信息都是需要从白皮书中获取的。）</li>
 </ol>
 </blockquote>
 <h3 id="Real-Pipeline">Real Pipeline<a class="anchor" href="#Real-Pipeline">·</a></h3>
-<p>让我们来看一个真实的 pipeline，这是 andes-d45 的 pipeline。</p>
-<p><img src="../../img/sched-model-draft/image-20250516164650839.png" alt="image-20250516164650839"></p>
-<p>对应的 pipeline 简化图，</p>
+<p>让我们来看一个真实的流水线图，这是晶心科技 <code>Andes-D45</code> 的流水线图。</p>
+<figure>
+  <img
+    src="https://www.andestech.com/wp-content/uploads/45-series-pipeline-2-1.jpg"
+    alt="Andes-D45 Pipeline">
+  <figcaption>
+    Andes-D45 Pipeline (From 
+    <a target="_blank" rel="noopener" href="https://www.andestech.com/en/2019/12/04/andes-45-series-expands-risc-v-high-end-processors-8-stage-superscalar-processor-balances-high-performance-power-efficiency-and-real-time-determinism-with-rich-risc-v-ecosystem/">
+      andestech.com
+    </a>
+    )
+  </figcaption>
+</figure>
+<p>对应的流水线简化图如下，</p>
 <pre><code class="highlight mermaid">flowchart LR
     %% Issue Paths
     Issue0[Issue Path 0]
@@ -385,13 +412,19 @@
     Issue0 --&gt; FP
     Issue0 --&gt; MULDIV
     Issue0 --&gt; DSP</code></pre>
-<p>d45 由于是双发 pipeline，一个周期会发射两条指令，考虑到 alu 指令是最频繁的，为了可以同时双发两条 alu 指令，它这里设置了两条 ALU通路，也就是说，当出现下面两条汇编指令同时发射时，它们可以分别占用两条 ALU通路，而不会导致流水线暂停。（可以想到，如果只有一条 ALU 通路的话，那么这里两条 add 指令就没法同时发射了，因为会有资源冲突，流水线会暂停）</p>
+<p>D45 由于是双发的流水线，一个周期会发射两条指令，考虑到 ALU 指令是最频繁的，为了可以同时双发两条 ALU 指令，它这里设置了两条 ALU 通路，也就是说，当出现下面两条汇编指令同时发射时，它们可以分别占用两条 ALU 通路，而不会导致流水线暂停。（可以想到，如果只有一条 ALU 通路的话，那么这里两条 <code>add</code> 指令就没法同时发射了，因为会有资源冲突，流水线会暂停。）</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">add a0, a1  --&gt; slot 0 -- use ALU0</span><br><span class="line">add a2, a3  --&gt; slot 1 -- use ALU1</span><br></pre></td></tr></table></figure>
-<p>d45 其他的部分并没有什么特殊的地方，一个 LD/ST 功能单元，一个 MUL/DIV 功能单元，一个 DSP 功能单元…</p>
-<p>另一个是 sifive-p600 的 pipeline，它是一个乱序 4 发射的 pipeline，</p>
+<p>D45 的流水线是非常简单的，没有什么过多需要描述的地方。</p>
+<blockquote>
+<ol>
+<li>D45 的 ALU 还有一个特殊的地方，它将 ALU stages 划分为两个 stages，EX stage 和 LX stage（L 意味着 Later），这里设计的意图，可能是为了减少数据冲突导致的暂停。这个并不是主要要讨论的问题。</li>
+<li>DSP 单元是为了执行 Andes RISCV-P Extension 的特殊指令。</li>
+</ol>
+</blockquote>
+<p>另一个是 Sifive-P600 的流水线，它是一个乱序 4 发射的流水线，看起来可能稍微复杂一点，</p>
 <p><img src="https://myhsu.xyz/images/p670-uarch.png" alt="img"></p>
 <p>从图上看，可能会感觉功能单元这么多又这么复杂，但其实不然，这是一个很简单的 pipeline，我们先将乱序以及一些Cache，prefetchr，分支预测部分剖除，会得到下面这样的一个 pipeline 图。</p>
-<pre><code class="highlight mermaid">flowchart TD
+<pre><code class="highlight mermaid">flowchart LR
     %% Issue paths
     Issue0[Issue Path 0]
     Issue1[Issue Path 1]
@@ -444,6 +477,10 @@
 <li>这里不提及控制冒险，它并不是调度器所能解决的问题</li>
 </ol>
 </blockquote>
+<h2 id="References">References<a class="anchor" href="#References">·</a></h2>
+<ol>
+<li>计算机体系结构：量化研究方法（第6版）附录 C</li>
+</ol>
 
     </div>
 
