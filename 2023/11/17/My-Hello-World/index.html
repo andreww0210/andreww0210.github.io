@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"example.com","root":"/","images":"/images","scheme":"Pisces","darkmode":true,"version":"8.23.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"utterances","storage":true,"lazyload":false,"nav":null,"activeClass":"utterances"},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="这是我的第一篇博客，作为“程序员”的我，理应叫他&quot;Hello,World!&quot; (其实我不太喜欢“程序员”这个称呼，因为总感觉它带着一些刻板印象在里面。) Introduce myself· 第一篇也也不知道说些什么，就随便唠叨唠叨了。 那就先介绍一下自己。个人目前是在武汉做LLVM编译器开发，目前主要的工作是做编译优化。当初因为很喜欢计算机底层知识，所以选择了这个方向。可能由于">
+<meta property="og:type" content="article">
+<meta property="og:title" content="It&#39;s my Hello,World!">
+<meta property="og:url" content="http://example.com/2023/11/17/My-Hello-World/index.html">
+<meta property="og:site_name" content="andreww&#39;s blog">
+<meta property="og:description" content="这是我的第一篇博客，作为“程序员”的我，理应叫他&quot;Hello,World!&quot; (其实我不太喜欢“程序员”这个称呼，因为总感觉它带着一些刻板印象在里面。) Introduce myself· 第一篇也也不知道说些什么，就随便唠叨唠叨了。 那就先介绍一下自己。个人目前是在武汉做LLVM编译器开发，目前主要的工作是做编译优化。当初因为很喜欢计算机底层知识，所以选择了这个方向。可能由于">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2023-11-17T03:57:00.000Z">
+<meta property="article:modified_time" content="2025-05-20T02:53:32.541Z">
+<meta property="article:author" content="yinghao">
+<meta property="article:tag" content="Hello,Wolrd!">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://example.com/2023/11/17/My-Hello-World/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"http://example.com/2023/11/17/My-Hello-World/","path":"2023/11/17/My-Hello-World/","title":"It's my Hello,World!"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>It's my Hello,World! | andreww's blog</title>
+  
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.5.0/mermaid.min.js","integrity":"sha256-2obLuIPcceEhkE3G09G33hBdmE55ivVcZUlcKcGNHjU="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">andreww's blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li>
+  </ul>
+</nav>
+
+
+
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Introduce-myself"><span class="nav-text">Introduce myself</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#About-my-life"><span class="nav-text">About my life</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Happy-ending"><span class="nav-text">Happy ending</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="yinghao"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">yinghao</p>
+  <div class="site-description" itemprop="description">Still new to blogging — feel free to email me if something's off. Happy to learn and figure things out together!</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">3</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/andreww0210" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;andreww0210" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:itsyinghao@gmail.com" title="E-Mail → mailto:itsyinghao@gmail.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+          <div class="recent-posts">
+            <div class="links-of-blogroll-title">
+              <i class="fa fa-history fa-fw"></i> Recent Posts
+            </div>
+            <ul class="recent-posts-list">
+              
+              
+                <li class="recent-posts-item">
+                  <a href="/2025/05/16/sched-model-draft/" title="sched-model-draft">sched-model-draft</a>
+                </li>
+              
+                <li class="recent-posts-item">
+                  <a href="/2023/11/17/My-Hello-World/" title="It's my Hello,World!">It's my Hello,World!</a>
+                </li>
+              
+                <li class="recent-posts-item">
+                  <a href="/2022/02/10/How-to-use-hexo/" title="How to use hexo">How to use hexo</a>
+                </li>
+              
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="http://example.com/2023/11/17/My-Hello-World/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="yinghao">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="andreww's blog">
+      <meta itemprop="description" content="Still new to blogging — feel free to email me if something's off. Happy to learn and figure things out together!">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="It&#39;s my Hello,World! | andreww's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          It's my Hello,World!
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2023-11-17 11:57:00" itemprop="dateCreated datePublished" datetime="2023-11-17T11:57:00+08:00">2023-11-17</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><p>这是我的第一篇博客，作为“程序员”的我，理应叫他&quot;Hello,World!&quot;
+(其实我不太喜欢“程序员”这个称呼，因为总感觉它带着一些刻板印象在里面。)</p>
+<h2 id="Introduce-myself">Introduce myself<a class="anchor" href="#Introduce-myself">·</a></h2>
+<p>第一篇也也不知道说些什么，就随便唠叨唠叨了。</p>
+<p>那就先介绍一下自己。个人目前是在武汉做LLVM编译器开发，目前主要的工作是做编译优化。当初因为很喜欢计算机底层知识，所以选择了这个方向。可能由于国内做编译器的很少，所以同行竞争压力比较小，加上我们的老板和总监之前都是常年在国外创业和工作，所以工作氛围很轻松，而且工作时间是真的弹性965。</p>
+<p>但是工作压力还是有的，主要是因为编译器软件过于庞大，计算机底层知识牵涉过多，所以有时候举步维艰。所以这也是我花费周末时间搭这个博客的一点原因，想借助这个博客来记录自己的学习。当然其实更多的是兴趣使然，不然我是不可能凌晨熬夜还在看这个前端代码的。</p>
+<p>工作五个月，从最开始接触linux指令，跑测试，整理数据，到开始做code size相关的优化（主要是outline相关），现在由于公司要用picolibc库开发，所以最近都在和picolibc打交道，所以也接触到了很多链接器相关的东西。我的工作其实说起来很无聊，就是测试，对比，阅读LLVM源码，在源码基础上做优化，但我很喜欢我的工作，可能本身对计算机底层的兴趣使我不会那么厌烦。工作中有很多很难的东西，比如要去阅读上千上万行的源码，虽然LLVM已经有十多年的时间了，但是能参考的资料真的不是很多，而且几乎没有中文，只能硬着头皮去看英文文档。遇到特别难的东西，其实真的也会很暴躁。😦</p>
+<p>结果就是，在技术方面，我真的成长了许多，但现在仍然还是个菜鸡。</p>
+<span id="more"></span>
+<h2 id="About-my-life">About my life<a class="anchor" href="#About-my-life">·</a></h2>
+<p>我也很喜欢我的生活，也有很多想做的事情。</p>
+<p>曾经刚来武汉的一段时间，我非常暴躁，大概是因为一个人来到一座城市，没有亲人朋友的孤独感。每天打开房门，面对的就是一个黑咕隆咚的地方，好像要被吞进去，打开灯，当然仍旧是走之前的老样子，没人陪伴孤独的样子。</p>
+<p>现在倒是好多了，或许是因为我放下了一些执念？又或许是我看了一些书？who knows，总之真的在变好了，无论是面对的生活，还是在情绪上。希望以后会越来越好。</p>
+<h2 id="Happy-ending">Happy ending<a class="anchor" href="#Happy-ending">·</a></h2>
+<p>总之，搭这个博客的目的，主要就是为了记录自己的生活和学习。这里也算是我自己的小天地了。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Hello-Wolrd/" rel="tag"># Hello,Wolrd!</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2022/02/10/How-to-use-hexo/" rel="prev" title="How to use hexo">
+                  <i class="fa fa-angle-left"></i> How to use hexo
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2025/05/16/sched-model-draft/" rel="next" title="sched-model-draft">
+                  sched-model-draft <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments utterances-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">yinghao</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/andreww0210" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="utterances" type="application/json">{"enable":true,"repo":"andreww0210/andreww0210.github.io","issue_term":"pathname","theme":"github-light"}</script>
+<script src="/js/third-party/comments/utterances.js" defer></script>
+
+</body>
+</html>
