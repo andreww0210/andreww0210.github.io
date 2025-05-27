@@ -28,7 +28,7 @@
 <meta property="og:description" content="Framework·  Understanding In-Order Pipelines and Pipeline Stalls What We Need in a Scheduling Model: GCC and LLVM Perspectives Writing a Scheduling Model from Scratch Tuning Your Scheduling Model for">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2025-05-27T07:50:36.000Z">
-<meta property="article:modified_time" content="2025-05-27T09:43:21.695Z">
+<meta property="article:modified_time" content="2025-05-27T09:47:49.922Z">
 <meta property="article:author" content="yinghao">
 <meta property="article:tag" content="instruction scheduling">
 <meta name="twitter:card" content="summary">
@@ -357,7 +357,7 @@
     A1 -- RAW --&gt; A2
     A2 -- WAW --&gt; A3
     A0 ~~~ A5</code></pre>
-<p><code>add a0, a0, 1</code>已经入度为 0，它是否可以直接加入就绪队列，或者什么时候它可以被加入就绪队列？<code>mul a3, a4, a5</code>由于与上一条被调度的指令有结构冲突，它是否需要被剔出就绪队列？</p>
+<p><code>add a0, a0, 1</code>已经入度为 0，它是否可以直接加入就绪队列，或者什么时候它可以被加入就绪队列？<code>mul a3, a4, a5</code>是否与上一条被调度的指令有结构冲突，它是否需要被剔出就绪队列？</p>
 <p>显然这个问题，我们在没有任何信息的情况下，是无法判断的，因为这是平台相关的信息，是由硬件流水线决定的。所以，我们就需要调度模型来解决这些问题了，我们需要给流水线进行建模，在建立的模型中包含以上信息，提供给调度算法查询，基于这些信息，调度算法才能做出更优的判断。因此，调度器可以认为是调度算法与调度模型共同组成的。如果没有调度模型，调度算法就无法获取流水线信息，只能基于默认的假设值来做调度，那么自然调度的效果就不会太好。</p>
 <p>因此，我们可以这样定义调度模型（Scheduling Model）：调度模型是一组用于抽象目标架构中流水线行为的参数集合，它描述了指令在硬件上的资源需求、延迟特性、执行约束等信息，供调度算法参考与查询，从而生成更符合硬件实际的指令排列方案。</p>
 <p>它通常会回答如下问题：</p>
