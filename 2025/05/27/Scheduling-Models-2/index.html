@@ -20,24 +20,27 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"andreww0210.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":true,"version":"8.23.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"utterances","storage":true,"lazyload":false,"nav":null,"activeClass":"utterances"},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
 
-    <meta name="description" content="New blogger sharing thoughts and learnings. Comments and emails welcome! (Please be nice)">
-<meta property="og:type" content="website">
-<meta property="og:title" content="andreww&#39;s blog">
-<meta property="og:url" content="https://andreww0210.github.io/tags/Hello-Wolrd/index.html">
+    <meta name="description" content="Framework·  Understanding In-Order Pipelines and Pipeline Stalls What We Need in a Scheduling Model: GCC and LLVM Perspectives Writing a Scheduling Model from Scratch Tuning Your Scheduling Model for">
+<meta property="og:type" content="article">
+<meta property="og:title" content="What We Need in a Scheduling Model">
+<meta property="og:url" content="https://andreww0210.github.io/2025/05/27/Scheduling-Models-2/index.html">
 <meta property="og:site_name" content="andreww&#39;s blog">
-<meta property="og:description" content="New blogger sharing thoughts and learnings. Comments and emails welcome! (Please be nice)">
+<meta property="og:description" content="Framework·  Understanding In-Order Pipelines and Pipeline Stalls What We Need in a Scheduling Model: GCC and LLVM Perspectives Writing a Scheduling Model from Scratch Tuning Your Scheduling Model for">
 <meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2025-05-27T07:50:36.000Z">
+<meta property="article:modified_time" content="2025-05-27T09:43:21.695Z">
 <meta property="article:author" content="yinghao">
+<meta property="article:tag" content="instruction scheduling">
 <meta name="twitter:card" content="summary">
 
 
-<link rel="canonical" href="https://andreww0210.github.io/tags/Hello-Wolrd/">
+<link rel="canonical" href="https://andreww0210.github.io/2025/05/27/Scheduling-Models-2/">
 
 
-<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":false,"lang":"en","comments":"","permalink":"","path":"tags/Hello-Wolrd/index.html","title":""}</script>
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://andreww0210.github.io/2025/05/27/Scheduling-Models-2/","path":"2025/05/27/Scheduling-Models-2/","title":"What We Need in a Scheduling Model"}</script>
 
 <script class="next-config" data-name="calendar" type="application/json">""</script>
-<title>Tag: Hello,Wolrd! | andreww's blog</title>
+<title>What We Need in a Scheduling Model | andreww's blog</title>
   
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-SSRWPJJEL4"></script>
   <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-SSRWPJJEL4","only_pageview":false,"measure_protocol_api_secret":null}</script>
@@ -157,7 +160,7 @@
   
   <aside class="sidebar">
 
-    <div class="sidebar-inner sidebar-overview-active">
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
       <ul class="sidebar-nav">
         <li class="sidebar-nav-toc">
           Table of Contents
@@ -170,6 +173,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Framework"><span class="nav-number">1.</span> <span class="nav-text">Framework</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Let%E2%80%99s-Recap"><span class="nav-number">2.</span> <span class="nav-text">Let’s Recap</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Let%E2%80%99s-Think"><span class="nav-number">3.</span> <span class="nav-text">Let’s Think</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Relationship-between-Scheduling-Model-and-Scheduling-Algorithm"><span class="nav-number">3.1.</span> <span class="nav-text">Relationship between Scheduling Model and Scheduling Algorithm</span></a></li></ol></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -240,51 +244,162 @@
 
     </div>
 
-    <div class="main-inner tag posts-collapse">
+    <div class="main-inner post posts-expand">
 
 
   
+
+
+<div class="post-block">
   
   
-  <div class="post-block">
-    <div class="post-content">
-      <div class="collection-title">
-        <h1 class="collection-header">Hello,Wolrd!
-          <small>Tag</small>
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://andreww0210.github.io/2025/05/27/Scheduling-Models-2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="yinghao">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="andreww's blog">
+      <meta itemprop="description" content="New blogger sharing thoughts and learnings. Comments and emails welcome! (Please be nice)">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="What We Need in a Scheduling Model | andreww's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          What We Need in a Scheduling Model
         </h1>
-      </div>
 
-      
-    <div class="collection-year">
-      <span class="collection-header">2023</span>
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2025-05-27 15:50:36" itemprop="dateCreated datePublished" datetime="2025-05-27T15:50:36+08:00">2025-05-27</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="Framework">Framework<a class="anchor" href="#Framework">·</a></h2>
+<ol>
+<li><a href="/2025/05/16/Scheduling-Models-1/">Understanding In-Order Pipelines and Pipeline Stalls</a></li>
+<li><a href="/2025/05/27/Scheduling-Models-2/">What We Need in a Scheduling Model: GCC and LLVM Perspectives</a></li>
+<li>Writing a Scheduling Model from Scratch</li>
+<li>Tuning Your Scheduling Model for Better Performance</li>
+<li>Recommended Readings on Out-of-Order Execution and Scheduling</li>
+</ol>
+<h2 id="Let’s-Recap">Let’s Recap<a class="anchor" href="#Let’s-Recap">·</a></h2>
+<p>第一篇文章中，我们已经说过，调度器主要是用来解决三类冲突，</p>
+<ul>
+<li>解码过于复杂导致的流水线前端暂停（后面简称为解码暂停）</li>
+<li>指令争夺相同运算单元导致流水线暂停的结构冲突</li>
+<li>指令间存在寄存器读写依赖导致流水线暂停的数据冲突</li>
+</ul>
+<p>这一节我们将详细展开，并且说明如果我们想要解决这些导致流水线暂停的冲突，我们需要哪些具体的流水线信息。</p>
+<h2 id="Let’s-Think">Let’s Think<a class="anchor" href="#Let’s-Think">·</a></h2>
+<h3 id="Relationship-between-Scheduling-Model-and-Scheduling-Algorithm">Relationship between Scheduling Model and Scheduling Algorithm<a class="anchor" href="#Relationship-between-Scheduling-Model-and-Scheduling-Algorithm">·</a></h3>
+<p>在讨论调度模型需要哪些信息之前，我们先简单介绍一下目前最广泛使用的调度算法，列表调度算法（List Scheduling Algorithm）。它通常是在基本块内部进行的，通过在满足依赖关系的前提下，重排指令顺序，以尽可能提升流水线的利用率。</p>
+<p>整个列表调度的基本流程可以概括为，</p>
+<ul>
+<li>首先，扫描基本块中的所有汇编指令，构建一张有向无环图（DAG）。图中的每个节点代表一条指令，边代表指令之间的依赖关系（如 RAW、WAW）。</li>
+<li>接着，对 DAG 进行调度，调度的过程就是使用一系列启发式策略对<strong>就绪指令</strong>进行拓扑排序的过程。</li>
+</ul>
+<blockquote>
+<p>就绪指令的意思是，这条指令在不存在任何冲突，即所有依赖都已满足的指令，可以“安全”地发射出去。</p>
+</blockquote>
+<p>那么问题来了，如何判断一条指令是就绪指令呢？</p>
+<span id="more"></span>
+<p>比如上一节中我们作为例子的汇编代码，</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">mul a0, a1, a2</span><br><span class="line">mul a3, a4, a5</span><br><span class="line">add t0, a0, a3</span><br><span class="line">add t0, t2, 1</span><br><span class="line">add t1, t1, 1</span><br><span class="line">add a0, a0, 1</span><br><span class="line">add t3, t3, 1</span><br></pre></td></tr></table></figure>
+<p>它对应的 DAG 图如下，</p>
+<pre><code class="highlight mermaid">graph TD
+    A0[mul a0, a1, a2]
+    A1[mul a3, a4, a5]
+    A2[add t0, a0, a3]
+    A3[add t0, t2, 1]
+    A4[add t1, t1, 1]
+    A5[add a0, a0, 1]
+    A6[add t3, t3, 1]
+
+    A0 -- RAW --&gt; A2
+    A1 -- RAW --&gt; A2
+    A2 -- WAW --&gt; A3
+    A0 -- RAW --&gt; A5</code></pre>
+<p>显然，刚开始我们有四条就绪指令，即四条入度为 0 的指令，</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">=== Ready List ===</span><br><span class="line">[mul a0, a1, a2], [mul a3, a4, a5], [add t1, t1, 1], [add t3, t3, 1]</span><br></pre></td></tr></table></figure>
+<p>假设调度器选择<code>mul a0, a1, a2</code>指令进行调度以后，就绪指令会如何变化？</p>
+<pre><code class="highlight mermaid">graph TD
+    A0[mul a0, a1, a2]
+    A1[mul a3, a4, a5]
+    A2[add t0, a0, a3]
+    A3[add t0, t2, 1]
+    A4[add t1, t1, 1]
+    A5[add a0, a0, 1]
+    A6[add t3, t3, 1]
+
+    A0 ~~~ A2
+    A1 -- RAW --&gt; A2
+    A2 -- WAW --&gt; A3
+    A0 ~~~ A5</code></pre>
+<p><code>add a0, a0, 1</code>已经入度为 0，它是否可以直接加入就绪队列，或者什么时候它可以被加入就绪队列？<code>mul a3, a4, a5</code>由于与上一条被调度的指令有结构冲突，它是否需要被剔出就绪队列？</p>
+<p>显然这个问题，我们在没有任何信息的情况下，是无法判断的，因为这是平台相关的信息，是由硬件流水线决定的。所以，我们就需要调度模型来解决这些问题了，我们需要给流水线进行建模，在建立的模型中包含以上信息，提供给调度算法查询，基于这些信息，调度算法才能做出更优的判断。因此，调度器可以认为是调度算法与调度模型共同组成的。如果没有调度模型，调度算法就无法获取流水线信息，只能基于默认的假设值来做调度，那么自然调度的效果就不会太好。</p>
+<p>因此，我们可以这样定义调度模型（Scheduling Model）：调度模型是一组用于抽象目标架构中流水线行为的参数集合，它描述了指令在硬件上的资源需求、延迟特性、执行约束等信息，供调度算法参考与查询，从而生成更符合硬件实际的指令排列方案。</p>
+<p>它通常会回答如下问题：</p>
+<ul>
+<li>同一个周期内最多能发射几条指令？</li>
+<li>发射一条指令时，会占用哪些资源？资源是否冲突？</li>
+<li>一条指令的输出什么时候可被下一条使用？</li>
+</ul>
+<p>这些信息对顺序核调度尤为关键，因为这些核心无法自动乱序调度、规避冲突，只能依赖静态调度器的来尽可能高效地填满流水线。</p>
+
     </div>
 
-  <article itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
-      <div class="post-meta-container">
-        <time itemprop="dateCreated"
-              datetime="2023-11-17T11:57:00+08:00"
-              content="2023-11-17">
-          11-17
-        </time>
-      </div>
+    
+    
+    
 
-      <div class="post-title">
-          <a class="post-title-link" href="/2023/11/17/My-Hello-World/" itemprop="url">
-            <span itemprop="name">It's my Hello,World!</span>
-          </a>
-      </div>
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/instruction-scheduling/" rel="tag"># instruction scheduling</a>
+          </div>
 
-      
-    </header>
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/05/16/Scheduling-Models-1/" rel="prev" title="In-Order Pipeline and Pipeline Stalls">
+                  <i class="fa fa-angle-left"></i> In-Order Pipeline and Pipeline Stalls
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
   </article>
+</div>
 
-    </div>
-  </div>
-  
-  
-  
 
+
+
+
+
+    <div class="comments utterances-container"></div>
 </div>
   </main>
 

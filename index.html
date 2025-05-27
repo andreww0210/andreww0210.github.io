@@ -184,7 +184,7 @@
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">3</span>
+          <span class="site-state-item-count">4</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -213,6 +213,10 @@
               
               
                 <li class="recent-posts-item">
+                  <a href="/2025/05/27/Scheduling-Models-2/" title="What We Need in a Scheduling Model">What We Need in a Scheduling Model</a>
+                </li>
+              
+                <li class="recent-posts-item">
                   <a href="/2025/05/16/Scheduling-Models-1/" title="In-Order Pipeline and Pipeline Stalls">In-Order Pipeline and Pipeline Stalls</a>
                 </li>
               
@@ -237,6 +241,109 @@
     </div>
 
     <div class="main-inner index posts-expand">
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://andreww0210.github.io/2025/05/27/Scheduling-Models-2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="yinghao">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="andreww's blog">
+      <meta itemprop="description" content="New blogger sharing thoughts and learnings. Comments and emails welcome! (Please be nice)">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | andreww's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2025/05/27/Scheduling-Models-2/" class="post-title-link" itemprop="url">What We Need in a Scheduling Model</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2025-05-27 15:50:36" itemprop="dateCreated datePublished" datetime="2025-05-27T15:50:36+08:00">2025-05-27</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h2 id="Framework">Framework<a class="anchor" href="#Framework">·</a></h2>
+<ol>
+<li><a href="/2025/05/16/Scheduling-Models-1/">Understanding In-Order Pipelines and Pipeline Stalls</a></li>
+<li><a href="/2025/05/27/Scheduling-Models-2/">What We Need in a Scheduling Model: GCC and LLVM Perspectives</a></li>
+<li>Writing a Scheduling Model from Scratch</li>
+<li>Tuning Your Scheduling Model for Better Performance</li>
+<li>Recommended Readings on Out-of-Order Execution and Scheduling</li>
+</ol>
+<h2 id="Let’s-Recap">Let’s Recap<a class="anchor" href="#Let’s-Recap">·</a></h2>
+<p>第一篇文章中，我们已经说过，调度器主要是用来解决三类冲突，</p>
+<ul>
+<li>解码过于复杂导致的流水线前端暂停（后面简称为解码暂停）</li>
+<li>指令争夺相同运算单元导致流水线暂停的结构冲突</li>
+<li>指令间存在寄存器读写依赖导致流水线暂停的数据冲突</li>
+</ul>
+<p>这一节我们将详细展开，并且说明如果我们想要解决这些导致流水线暂停的冲突，我们需要哪些具体的流水线信息。</p>
+<h2 id="Let’s-Think">Let’s Think<a class="anchor" href="#Let’s-Think">·</a></h2>
+<h3 id="Relationship-between-Scheduling-Model-and-Scheduling-Algorithm">Relationship between Scheduling Model and Scheduling Algorithm<a class="anchor" href="#Relationship-between-Scheduling-Model-and-Scheduling-Algorithm">·</a></h3>
+<p>在讨论调度模型需要哪些信息之前，我们先简单介绍一下目前最广泛使用的调度算法，列表调度算法（List Scheduling Algorithm）。它通常是在基本块内部进行的，通过在满足依赖关系的前提下，重排指令顺序，以尽可能提升流水线的利用率。</p>
+<p>整个列表调度的基本流程可以概括为，</p>
+<ul>
+<li>首先，扫描基本块中的所有汇编指令，构建一张有向无环图（DAG）。图中的每个节点代表一条指令，边代表指令之间的依赖关系（如 RAW、WAW）。</li>
+<li>接着，对 DAG 进行调度，调度的过程就是使用一系列启发式策略对<strong>就绪指令</strong>进行拓扑排序的过程。</li>
+</ul>
+<blockquote>
+<p>就绪指令的意思是，这条指令在不存在任何冲突，即所有依赖都已满足的指令，可以“安全”地发射出去。</p>
+</blockquote>
+<p>那么问题来了，如何判断一条指令是就绪指令呢？</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2025/05/27/Scheduling-Models-2/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
 
     
 
@@ -389,10 +496,17 @@
     
     
     <div class="post-body" itemprop="articleBody">
-          <p>我的第一篇博客，介绍自己作为LLVM编译器开发者的工作和生活。分享在武汉的工作经历，编译优化的技术挑战，以及个人成长历程。</p>
+          <p>这是我的第一篇博客，作为“程序员”的我，理应叫他&quot;Hello,World!&quot;
+(其实我不太喜欢“程序员”这个称呼，因为总感觉它带着一些刻板印象在里面。)</p>
+<h2 id="Introduce-myself">Introduce myself<a class="anchor" href="#Introduce-myself">·</a></h2>
+<p>第一篇也也不知道说些什么，就随便唠叨唠叨了。</p>
+<p>那就先介绍一下自己。个人目前是在武汉做LLVM编译器开发，目前主要的工作是做编译优化。当初因为很喜欢计算机底层知识，所以选择了这个方向。可能由于国内做编译器的很少，所以同行竞争压力比较小，加上我们的老板和总监之前都是常年在国外创业和工作，所以工作氛围很轻松，而且工作时间是真的弹性965。</p>
+<p>但是工作压力还是有的，主要是因为编译器软件过于庞大，计算机底层知识牵涉过多，所以有时候举步维艰。所以这也是我花费周末时间搭这个博客的一点原因，想借助这个博客来记录自己的学习。当然其实更多的是兴趣使然，不然我是不可能凌晨熬夜还在看这个前端代码的。</p>
+<p>工作五个月，从最开始接触linux指令，跑测试，整理数据，到开始做code size相关的优化（主要是outline相关），现在由于公司要用picolibc库开发，所以最近都在和picolibc打交道，所以也接触到了很多链接器相关的东西。我的工作其实说起来很无聊，就是测试，对比，阅读LLVM源码，在源码基础上做优化，但我很喜欢我的工作，可能本身对计算机底层的兴趣使我不会那么厌烦。工作中有很多很难的东西，比如要去阅读上千上万行的源码，虽然LLVM已经有十多年的时间了，但是能参考的资料真的不是很多，而且几乎没有中文，只能硬着头皮去看英文文档。遇到特别难的东西，其实真的也会很暴躁。😦</p>
+<p>结果就是，在技术方面，我真的成长了许多，但现在仍然还是个菜鸡。</p>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2023/11/17/My-Hello-World/">
+              <a class="btn" href="/2023/11/17/My-Hello-World/#more" rel="contents">
                 Read more &raquo;
               </a>
             </div>
