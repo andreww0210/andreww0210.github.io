@@ -28,7 +28,7 @@
 <meta property="og:description" content="Framework·  Understanding In-Order Pipelines and Pipeline Stalls What We Need in a Scheduling Model: GCC and LLVM Perspectives Writing a Scheduling Model from Scratch Tuning Your Scheduling Model for">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2025-05-27T07:50:36.000Z">
-<meta property="article:modified_time" content="2025-05-27T09:47:49.922Z">
+<meta property="article:modified_time" content="2025-05-29T09:28:22.883Z">
 <meta property="article:author" content="yinghao">
 <meta property="article:tag" content="instruction scheduling">
 <meta name="twitter:card" content="summary">
@@ -173,7 +173,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Framework"><span class="nav-number">1.</span> <span class="nav-text">Framework</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Let%E2%80%99s-Recap"><span class="nav-number">2.</span> <span class="nav-text">Let’s Recap</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Let%E2%80%99s-Think"><span class="nav-number">3.</span> <span class="nav-text">Let’s Think</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Relationship-between-Scheduling-Model-and-Scheduling-Algorithm"><span class="nav-number">3.1.</span> <span class="nav-text">Relationship between Scheduling Model and Scheduling Algorithm</span></a></li></ol></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Framework"><span class="nav-number">1.</span> <span class="nav-text">Framework</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Let%E2%80%99s-Recap"><span class="nav-number">2.</span> <span class="nav-text">Let’s Recap</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Let%E2%80%99s-Model-it"><span class="nav-number">3.</span> <span class="nav-text">Let’s Model it</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Relationship-between-Scheduling-Model-and-Scheduling-Algorithm"><span class="nav-number">3.1.</span> <span class="nav-text">Relationship between Scheduling Model and Scheduling Algorithm</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Information-about-Dispatch-Stalls"><span class="nav-number">3.2.</span> <span class="nav-text">Information about Dispatch Stalls</span></a></li></ol></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -307,12 +307,14 @@
 <h2 id="Let’s-Recap">Let’s Recap<a class="anchor" href="#Let’s-Recap">·</a></h2>
 <p>第一篇文章中，我们已经说过，调度器主要是用来解决三类冲突，</p>
 <ul>
-<li>解码过于复杂导致的流水线前端暂停（后面简称为解码暂停）</li>
+<li>汇编解码出的微操作数过多，无法在一个周期内发射出去所导致的发射阻塞</li>
 <li>指令争夺相同运算单元导致流水线暂停的结构冲突</li>
 <li>指令间存在寄存器读写依赖导致流水线暂停的数据冲突</li>
 </ul>
 <p>这一节我们将详细展开，并且说明如果我们想要解决这些导致流水线暂停的冲突，我们需要哪些具体的流水线信息。</p>
-<h2 id="Let’s-Think">Let’s Think<a class="anchor" href="#Let’s-Think">·</a></h2>
+<h2 id="Let’s-Model-it">Let’s Model it<a class="anchor" href="#Let’s-Model-it">·</a></h2>
+<p>假设我们现在不知道调度模型需要包含什么信息，目前先构建一个空的结构体定义叫做<code>struct Pipeline</code>，后面我们将逐渐完善这个结构体内的变量，完成一个简单的调度模型结构体定义。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Pipeline</span> &#123;</span></span><br><span class="line">  <span class="comment">// Contains nothing.</span></span><br><span class="line">  <span class="comment">// We don&#x27;t yet know what we need to model a pipeline.</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 <h3 id="Relationship-between-Scheduling-Model-and-Scheduling-Algorithm">Relationship between Scheduling Model and Scheduling Algorithm<a class="anchor" href="#Relationship-between-Scheduling-Model-and-Scheduling-Algorithm">·</a></h3>
 <p>在讨论调度模型需要哪些信息之前，我们先简单介绍一下目前最广泛使用的调度算法，列表调度算法（List Scheduling Algorithm）。它通常是在基本块内部进行的，通过在满足依赖关系的前提下，重排指令顺序，以尽可能提升流水线的利用率。</p>
 <p>整个列表调度的基本流程可以概括为，</p>
@@ -367,6 +369,28 @@
 <li>一条指令的输出什么时候可被下一条使用？</li>
 </ul>
 <p>这些信息对顺序核调度尤为关键，因为这些核心无法自动乱序调度、规避冲突，只能依赖静态调度器的来尽可能高效地填满流水线。</p>
+<h3 id="Information-about-Dispatch-Stalls">Information about Dispatch Stalls<a class="anchor" href="#Information-about-Dispatch-Stalls">·</a></h3>
+<p>我们首先来回答第一个问题，</p>
+<p>假设我们现在有个 n 发射的流水线，我们先不考虑它的功能单元种类和数量，一个简化的流水线就如下图所示，</p>
+<pre><code class="highlight mermaid">flowchart LR
+    %% Issue Paths
+    Issue0[Slot 0]
+    Issue1[Slot 1]
+    Issue2[Slot 2]
+	Issue..[...]
+    Issuen[Slot n]
+    
+    %% Pipelins
+    EX[EX Stage]
+	...[...]
+
+    %% Connections
+    Issue0 --&gt; EX
+    Issue1 --&gt; EX
+    Issue2 --&gt; EX
+    Issuen --&gt; EX
+    EX --&gt; ...</code></pre>
+<p>既然这个流水线只有 n 个 Slot 可以使用，那么在同一个周期，它最多只能发射 n 个微操作，如果微操作的数量多于 n 个，则会在发射阶段阻塞，导致前端流水线暂停。</p>
 
     </div>
 

@@ -303,12 +303,14 @@
 <h2 id="Let’s-Recap">Let’s Recap<a class="anchor" href="#Let’s-Recap">·</a></h2>
 <p>第一篇文章中，我们已经说过，调度器主要是用来解决三类冲突，</p>
 <ul>
-<li>解码过于复杂导致的流水线前端暂停（后面简称为解码暂停）</li>
+<li>汇编解码出的微操作数过多，无法在一个周期内发射出去所导致的发射阻塞</li>
 <li>指令争夺相同运算单元导致流水线暂停的结构冲突</li>
 <li>指令间存在寄存器读写依赖导致流水线暂停的数据冲突</li>
 </ul>
 <p>这一节我们将详细展开，并且说明如果我们想要解决这些导致流水线暂停的冲突，我们需要哪些具体的流水线信息。</p>
-<h2 id="Let’s-Think">Let’s Think<a class="anchor" href="#Let’s-Think">·</a></h2>
+<h2 id="Let’s-Model-it">Let’s Model it<a class="anchor" href="#Let’s-Model-it">·</a></h2>
+<p>假设我们现在不知道调度模型需要包含什么信息，目前先构建一个空的结构体定义叫做<code>struct Pipeline</code>，后面我们将逐渐完善这个结构体内的变量，完成一个简单的调度模型结构体定义。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Pipeline</span> &#123;</span></span><br><span class="line">  <span class="comment">// Contains nothing.</span></span><br><span class="line">  <span class="comment">// We don&#x27;t yet know what we need to model a pipeline.</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 <h3 id="Relationship-between-Scheduling-Model-and-Scheduling-Algorithm">Relationship between Scheduling Model and Scheduling Algorithm<a class="anchor" href="#Relationship-between-Scheduling-Model-and-Scheduling-Algorithm">·</a></h3>
 <p>在讨论调度模型需要哪些信息之前，我们先简单介绍一下目前最广泛使用的调度算法，列表调度算法（List Scheduling Algorithm）。它通常是在基本块内部进行的，通过在满足依赖关系的前提下，重排指令顺序，以尽可能提升流水线的利用率。</p>
 <p>整个列表调度的基本流程可以概括为，</p>

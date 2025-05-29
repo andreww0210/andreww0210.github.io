@@ -29,7 +29,7 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://andreww0210.github.io/imgs/In-Order-Pipeline-and-Pipeline-Stalls/image-p670-funcunit.png">
 <meta property="article:published_time" content="2025-05-16T14:19:29.000Z">
-<meta property="article:modified_time" content="2025-05-23T04:52:21.410Z">
+<meta property="article:modified_time" content="2025-05-29T09:19:47.125Z">
 <meta property="article:author" content="yinghao">
 <meta property="article:tag" content="instruction scheduling">
 <meta name="twitter:card" content="summary">
@@ -531,12 +531,13 @@
 </blockquote>
 <h3 id="Types-of-stall">Types of stall<a class="anchor" href="#Types-of-stall">·</a></h3>
 <p>现代 CPU 可能因为各种各样的原因导致流水线性能损失，</p>
-<p>比如 iCache miss 会导致 IF 阶段无法顺利取到下一条指令，没有指令，流水线自然只能在那里空转，这导致了一些性能损失。又或者，如果一条汇编对应多个微操作（micro-ops）的话，在解码阶段可能会花费多个周期，也有可能导致后半部分流水线的空转。这些性能损失都是由于流水线前端无法给流水线后端提供足够的指令所导致的，通常被称为流水线前端暂停。</p>
+<p>比如 iCache miss 会导致取指阶段无法及时取到下一条指令，流水线前端得不到新指令，流水线只能空转等待，从而引发性能损失。而即使取到了指令，如果一条指令在解码后被翻译成多个微操作（micro-ops），而流水线的发射宽度（Issue width）不匹配时，需要多个周期才能完成当前所有微操作的发射，前端流水线同样会暂停。</p>
+<p>这些性能损失的根源都是因为前端流水线无法持续、稳定地提供指令给后端，通常被统称为流水线前端暂停。</p>
 <blockquote>
-<p>这种情况在 CISC 指令集中（如 x86）中较为常见，一条汇编翻译出来的微操作（micro-op）数量过多可能会导致 decode/dispatch 阶段变成瓶颈，进而影响整体吞吐率。而 RISC 指令集通常一条汇编对应一个微操作，通常不会发生这种问题。</p>
+<p>这种由于微操作数量与发射宽度不匹配导致的流水线前端暂停（后面称之为发射阻塞），在 CISC 指令集中（如 x86）中较为常见，而 RISC 指令通常结构比较简单，一条汇编对应一到两个微操作，通常不会发生这种问题。</p>
 </blockquote>
 <p>又比如，当流水线中同时出现两条指令，它们需要相同的功能单元，而这条流水线只有一个该功能单元时，会发生结构冲突或资源冲突，流水线必须暂停等待上一条指令释放该资源。</p>
-<p>比如在 <code>Andes-D45</code> 流水线中，</p>
+<p>在 <code>Andes-D45</code> 流水线中，</p>
 <pre><code class="highlight mermaid">flowchart LR
     %% Issue Paths
     Issue0[Slot 0]
@@ -559,14 +560,17 @@
     Issue0 --&gt; DSP</code></pre>
 <p>假如出现以下汇编，则由于乘法单元只有一个，同时双发两条 <code>mul</code>指令必然会导致流水线暂停，</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mul a0, a1, a2  --&gt; slot 0 -- use the MUL/DIV pipe</span><br><span class="line">mul a3, a4, a5  --&gt; slot 1 -- the MUL/DIV pipe was occupied, so it had to wait</span><br></pre></td></tr></table></figure>
-<p>再看如下汇编，显然，这对汇编不会发生资源冲突，一个进入 <code>MUL/DIV</code>功能单元执行乘法运算，一个进入<code>ALU</code>功能单元执行加法指令，非常和谐。</p>
+<p>进一步再看如下汇编，显然，这对汇编不会发生资源冲突，一个进入 <code>MUL/DIV</code>功能单元执行乘法运算，一个进入<code>ALU</code>功能单元执行加法指令，非常和谐。</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mul a0, a1, a2  --&gt; slot 0 -- write `a0`, assuming it can be read after 2 cycles.</span><br><span class="line">add a3, a0, a5  --&gt; slot 1 -- read `a0` from `mul`, so it had to wait 2 cycles.</span><br></pre></td></tr></table></figure>
 <p>但是不和谐的地方在于，第二条<code>add</code>指令使用了前一条<code>mul</code>指令要写的值，这就是另一中很常见的冲突 – 数据冲突，数据冲突通常分为三类，写后读，读后写，写后写，对应数据依赖（True Dependency/Data Dependency），反依赖（Anti-Dependency），输出依赖（Output-Dependency），具体定义不在这里赘述。</p>
 <p>上述由于冲突导致的流水线损失，通常表现为流水线完全暂停等待冲突解除，被称为流水线后端暂停。</p>
 <h3 id="What-can-be-solved-by-the-scheduler">What can be solved by the scheduler?<a class="anchor" href="#What-can-be-solved-by-the-scheduler">·</a></h3>
 <p>既然本系列是介绍调度模型的，自然需要知道，调度器是用来解决哪些流水线暂停问题的。</p>
 <p>调度器的主要作用，是在代码局部，通常是在一个基本块内，进行指令重排布。它会在不影响代码逻辑正确性的情况下尽可能的减少可能的流水线暂停。所以这个问题就是，对指令进行重排布，可以解决掉哪些可能的流水线暂停？</p>
-<p>其实答案就是上节提到的几个流水线暂停的类型: 指令解码过于复杂导致的前端流水线暂停，以及资源冲突，数据冲突导致的后端流水线暂停。</p>
+<p>其实答案就是上节提到的几个流水线暂停的类型: 发射阻塞，以及资源冲突，数据冲突导致的后端流水线暂停。</p>
+<blockquote>
+<p>发射阻塞，其实本质上也是一种资源冲突，相当于多个微操作在争夺比它们数量少的发射通路。但是这里分开来看会更好理解一些。</p>
+</blockquote>
 <pre><code class="highlight mermaid">flowchart LR
     %% Issue Paths
     Issue0[Slot 0]
@@ -598,7 +602,7 @@
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">-- cycle1 --</span><br><span class="line">mul a0, a1, a2</span><br><span class="line">add t1, t1, 1</span><br><span class="line">-- cycle2 --</span><br><span class="line">mul a3, a4, a5</span><br><span class="line">add t3, t3, 1</span><br><span class="line">-- cycle5 --</span><br><span class="line">add t0, a0, a3</span><br><span class="line">add a0, a0, 1</span><br><span class="line">-- cycle6 --</span><br><span class="line">add t0, t2, 1</span><br></pre></td></tr></table></figure>
 <p>总结来说，调度器通过重新排布指令的执行顺序，来缓解如下几类性能瓶颈：</p>
 <ul>
-<li>解码阶段阻塞：例如某些复杂指令被翻译为多个微操作，导致流水线吞吐下降</li>
+<li>发射阻塞：例如某些复杂指令被翻译为多个微操作，与发射宽度不匹配</li>
 <li>结构冲突 / 资源冲突：多条指令竞争同一个功能单元</li>
 <li>数据冲突：典型如写后读（RAW）依赖引起的等待</li>
 </ul>
