@@ -20,15 +20,15 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"andreww0210.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":true,"version":"8.23.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"utterances","storage":true,"lazyload":false,"nav":null,"activeClass":"utterances"},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
 
-    <meta name="description" content="Framework·  Understanding In-Order Pipelines and Pipeline Stalls What We Need in a Scheduling Model: GCC and LLVM Perspectives Writing a Scheduling Model from Scratch Tuning Your Scheduling Model for">
+    <meta name="description" content="Framework·  Understanding In-Order Pipelines and Pipeline Stalls What We Need in a Scheduling Model Scheduling Model: GCC and LLVM Perspectives Tuning Your Scheduling Model for Better Performance Reco">
 <meta property="og:type" content="article">
 <meta property="og:title" content="What We Need in a Scheduling Model">
 <meta property="og:url" content="https://andreww0210.github.io/2025/05/27/Scheduling-Models-2/index.html">
 <meta property="og:site_name" content="andreww&#39;s blog">
-<meta property="og:description" content="Framework·  Understanding In-Order Pipelines and Pipeline Stalls What We Need in a Scheduling Model: GCC and LLVM Perspectives Writing a Scheduling Model from Scratch Tuning Your Scheduling Model for">
+<meta property="og:description" content="Framework·  Understanding In-Order Pipelines and Pipeline Stalls What We Need in a Scheduling Model Scheduling Model: GCC and LLVM Perspectives Tuning Your Scheduling Model for Better Performance Reco">
 <meta property="og:locale" content="en_US">
 <meta property="article:published_time" content="2025-05-27T07:50:36.000Z">
-<meta property="article:modified_time" content="2025-05-29T09:28:22.883Z">
+<meta property="article:modified_time" content="2025-06-03T09:55:20.544Z">
 <meta property="article:author" content="yinghao">
 <meta property="article:tag" content="instruction scheduling">
 <meta name="twitter:card" content="summary">
@@ -173,7 +173,7 @@
       <div class="sidebar-panel-container">
         <!--noindex-->
         <div class="post-toc-wrap sidebar-panel">
-            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Framework"><span class="nav-number">1.</span> <span class="nav-text">Framework</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Let%E2%80%99s-Recap"><span class="nav-number">2.</span> <span class="nav-text">Let’s Recap</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Let%E2%80%99s-Model-it"><span class="nav-number">3.</span> <span class="nav-text">Let’s Model it</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Relationship-between-Scheduling-Model-and-Scheduling-Algorithm"><span class="nav-number">3.1.</span> <span class="nav-text">Relationship between Scheduling Model and Scheduling Algorithm</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Information-about-Dispatch-Stalls"><span class="nav-number">3.2.</span> <span class="nav-text">Information about Dispatch Stalls</span></a></li></ol></li></ol></div>
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Framework"><span class="nav-number">1.</span> <span class="nav-text">Framework</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Recap"><span class="nav-number">2.</span> <span class="nav-text">Recap</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Model-it"><span class="nav-number">3.</span> <span class="nav-text">Model it</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Scheduling-Model-and-Scheduling-Algorithm"><span class="nav-number">3.1.</span> <span class="nav-text">Scheduling Model and Scheduling Algorithm</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#About-Dispatch-Stalls"><span class="nav-number">3.2.</span> <span class="nav-text">About Dispatch Stalls</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#About-Resource-Conflicts"><span class="nav-number">3.3.</span> <span class="nav-text">About Resource Conflicts</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#About-Data-Conflicts"><span class="nav-number">3.4.</span> <span class="nav-text">About Data Conflicts</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Summarize"><span class="nav-number">4.</span> <span class="nav-text">Summarize</span></a></li></ol></div>
         </div>
         <!--/noindex-->
 
@@ -299,12 +299,12 @@
     <div class="post-body" itemprop="articleBody"><h2 id="Framework">Framework<a class="anchor" href="#Framework">·</a></h2>
 <ol>
 <li><a href="/2025/05/16/Scheduling-Models-1/">Understanding In-Order Pipelines and Pipeline Stalls</a></li>
-<li><a href="/2025/05/27/Scheduling-Models-2/">What We Need in a Scheduling Model: GCC and LLVM Perspectives</a></li>
-<li>Writing a Scheduling Model from Scratch</li>
+<li><a href="/2025/05/27/Scheduling-Models-2/">What We Need in a Scheduling Model</a></li>
+<li>Scheduling Model: GCC and LLVM Perspectives</li>
 <li>Tuning Your Scheduling Model for Better Performance</li>
 <li>Recommended Readings on Out-of-Order Execution and Scheduling</li>
 </ol>
-<h2 id="Let’s-Recap">Let’s Recap<a class="anchor" href="#Let’s-Recap">·</a></h2>
+<h2 id="Recap">Recap<a class="anchor" href="#Recap">·</a></h2>
 <p>第一篇文章中，我们已经说过，调度器主要是用来解决三类冲突，</p>
 <ul>
 <li>汇编解码出的微操作数过多，无法在一个周期内发射出去所导致的发射阻塞</li>
@@ -312,10 +312,14 @@
 <li>指令间存在寄存器读写依赖导致流水线暂停的数据冲突</li>
 </ul>
 <p>这一节我们将详细展开，并且说明如果我们想要解决这些导致流水线暂停的冲突，我们需要哪些具体的流水线信息。</p>
-<h2 id="Let’s-Model-it">Let’s Model it<a class="anchor" href="#Let’s-Model-it">·</a></h2>
-<p>假设我们现在不知道调度模型需要包含什么信息，目前先构建一个空的结构体定义叫做<code>struct Pipeline</code>，后面我们将逐渐完善这个结构体内的变量，完成一个简单的调度模型结构体定义。</p>
+<h2 id="Model-it">Model it<a class="anchor" href="#Model-it">·</a></h2>
+<p>假设我们现在不知道调度模型需要包含什么信息，目前先构建一个空的结构体定义<code>struct Pipeline</code>，后面我们将逐渐完善这个结构体内的变量定义。</p>
+<blockquote>
+<p>这个调度模型定义，即不是 LLVM 中的用法，也不是 gcc 中的用法，在这里是用更简单的方式表述，后面我们才会延伸到 LLVM 和 gcc 中的用法。</p>
+</blockquote>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Pipeline</span> &#123;</span></span><br><span class="line">  <span class="comment">// Contains nothing.</span></span><br><span class="line">  <span class="comment">// We don&#x27;t yet know what we need to model a pipeline.</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<h3 id="Relationship-between-Scheduling-Model-and-Scheduling-Algorithm">Relationship between Scheduling Model and Scheduling Algorithm<a class="anchor" href="#Relationship-between-Scheduling-Model-and-Scheduling-Algorithm">·</a></h3>
+<span id="more"></span>
+<h3 id="Scheduling-Model-and-Scheduling-Algorithm">Scheduling Model and Scheduling Algorithm<a class="anchor" href="#Scheduling-Model-and-Scheduling-Algorithm">·</a></h3>
 <p>在讨论调度模型需要哪些信息之前，我们先简单介绍一下目前最广泛使用的调度算法，列表调度算法（List Scheduling Algorithm）。它通常是在基本块内部进行的，通过在满足依赖关系的前提下，重排指令顺序，以尽可能提升流水线的利用率。</p>
 <p>整个列表调度的基本流程可以概括为，</p>
 <ul>
@@ -326,7 +330,6 @@
 <p>就绪指令的意思是，这条指令在不存在任何冲突，即所有依赖都已满足的指令，可以“安全”地发射出去。</p>
 </blockquote>
 <p>那么问题来了，如何判断一条指令是就绪指令呢？</p>
-<span id="more"></span>
 <p>比如上一节中我们作为例子的汇编代码，</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">mul a0, a1, a2</span><br><span class="line">mul a3, a4, a5</span><br><span class="line">add t0, a0, a3</span><br><span class="line">add t0, t2, 1</span><br><span class="line">add t1, t1, 1</span><br><span class="line">add a0, a0, 1</span><br><span class="line">add t3, t3, 1</span><br></pre></td></tr></table></figure>
 <p>它对应的 DAG 图如下，</p>
@@ -369,7 +372,7 @@
 <li>一条指令的输出什么时候可被下一条使用？</li>
 </ul>
 <p>这些信息对顺序核调度尤为关键，因为这些核心无法自动乱序调度、规避冲突，只能依赖静态调度器的来尽可能高效地填满流水线。</p>
-<h3 id="Information-about-Dispatch-Stalls">Information about Dispatch Stalls<a class="anchor" href="#Information-about-Dispatch-Stalls">·</a></h3>
+<h3 id="About-Dispatch-Stalls">About Dispatch Stalls<a class="anchor" href="#About-Dispatch-Stalls">·</a></h3>
 <p>我们首先来回答第一个问题，</p>
 <p>假设我们现在有个 n 发射的流水线，我们先不考虑它的功能单元种类和数量，一个简化的流水线就如下图所示，</p>
 <pre><code class="highlight mermaid">flowchart LR
@@ -391,6 +394,131 @@
     Issuen --&gt; EX
     EX --&gt; ...</code></pre>
 <p>既然这个流水线只有 n 个 Slot 可以使用，那么在同一个周期，它最多只能发射 n 个微操作，如果微操作的数量多于 n 个，则会在发射阶段阻塞，导致前端流水线暂停。</p>
+<p>那么，我们就需要告诉调度器，我们这个流水线有 n 个发射通路。当然，只有发射通路的数量是不够的，我们还需要告诉调度器，每条指令会被解码成多少个微操作。因此，我们需要在<code>struct Pipeline</code>中添加<code>issue_width</code>来表示发射通路数量，并且新创建一个<code>struct Ins</code>，并添加<code>num_micro_ops</code>变量来表示这条指令会被解码成多少个微操作。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Pipeline</span> &#123;</span></span><br><span class="line">  <span class="type">int</span> issue_width;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Ins</span> &#123;</span></span><br><span class="line">  <span class="type">int</span> num_micro_ops;  </span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>调度器在拿到这两个信息以后，就可以控制在一个周期内发射的指令，让其<code>num_micro_ops</code>的总和不超过<code>issue_width</code>，就可以防止流水线在实际运行中发生发射阻塞了。</p>
+<blockquote>
+<p>当然这里说的是理想情况。真实情况下，由于调度模型可能存在不准确性，无法百分百契合对应硬件流水线，以及调度器中存在复杂的启发式算法，会根据不同情况选择不同的指令进行调度，比如，一个可能导致三个周期停顿的数据依赖和只导致一个周期停顿的发射停顿，调度器理应选择后者优先调度。</p>
+</blockquote>
+<h3 id="About-Resource-Conflicts">About Resource Conflicts<a class="anchor" href="#About-Resource-Conflicts">·</a></h3>
+<p>资源冲突的例子在第一篇举过很多，这里就不再赘述。如果想要调度器能够在调度时候充分考虑到资源冲突的情况，自然需要告诉调度器，流水线有哪些功能单元，对应的功能单元有多少个，以及什么指令使用什么功能单元。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">FuncUnit</span> &#123;</span></span><br><span class="line">  <span class="type">int</span> num_units; </span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Pipeline</span> &#123;</span></span><br><span class="line">  <span class="type">int</span> issue_width;</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">FuncUnit</span>* <span class="title">func_units</span>[];</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Ins</span> &#123;</span></span><br><span class="line">  <span class="type">int</span> num_micro_ops;</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">FuncUnit</span>* <span class="title">used_unit</span>;</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<pre><code class="highlight mermaid">flowchart LR
+    %% Issue Paths
+    Issue0[Slot 0]
+	Issue1[Slot 1]
+
+    %% Pipelines
+    ALU0[ALU0]
+    ALU1[ALU1]
+    MUL[MUL]
+
+    %% Connections
+    Issue0 --&gt; ALU0
+    Issue0 --&gt; ALU1
+    Issue0 --&gt; MUL</code></pre>
+<p>对于上图流水线，我们可以构建对应<code>FuncUnit</code>，<code>Pipeline</code>，<code>Ins</code>，</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// FuncUnit ALU</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">FuncUnit</span>* <span class="title">ALU</span> =</span> <span class="built_in">malloc</span>(...);</span><br><span class="line"><span class="comment">// FuncUnit MUL</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">FuncUnit</span>* <span class="title">MUL</span> =</span> <span class="built_in">malloc</span>(...);</span><br><span class="line"></span><br><span class="line">ALU-&gt;num_units = <span class="number">2</span>;</span><br><span class="line">MUL-&gt;num_units = <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Pipeline _Pipeline</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Pipeline</span>* _<span class="title">Pipeline</span> =</span> <span class="built_in">malloc</span>(...);</span><br><span class="line">_Pipeline-&gt;issue_width = <span class="number">2</span>;</span><br><span class="line">_Pipeline-&gt;func_units[<span class="number">0</span>] = ALU;</span><br><span class="line">_Pipeline-&gt;func_units[<span class="number">1</span>] = MUL;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Ins Add and Mul</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Ins</span>* <span class="title">Add</span> =</span> <span class="built_in">malloc</span>(...);</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Ins</span>* <span class="title">Mul</span> =</span> <span class="built_in">malloc</span>(...);</span><br><span class="line">Add-&gt;num_micro_ops = <span class="number">1</span>;</span><br><span class="line">Add-&gt;used_unit = ALU;</span><br><span class="line">Mul-&gt;num_micro_ops = <span class="number">1</span>;</span><br><span class="line">Mul-&gt;used_unit = MUL;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>这里只是为了讲解调度模型里面的内容，就不纠结 c 的语法了～</p>
+</blockquote>
+<p>So，当调度器拿到这些信息以后，就可以在对汇编调度时考虑到资源冲突了。</p>
+<p>比如当遇到如下汇编，</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">add a0, a0, a1</span><br><span class="line">add a2, a3, a2</span><br><span class="line">mul t2, t3, t4</span><br><span class="line">mul t0, t0, t1</span><br></pre></td></tr></table></figure>
+<p>当处理前两条<code>add</code>时，调度器可以知道，它们的<code>num_micro_ops</code>都为 1，因此双发不会导致发射阻塞，并且它们需要使用<code>ALU</code>单元，并且<code>ALU</code>单元剩余两个也不会发生资源冲突，因此，两条<code>add</code>可以在第一个周期发射。</p>
+<p>第二个周期，在处理两条<code>mul</code>指令时，由于它们的<code>num_micro_ops</code>都为 1，因此双发不会导致发射阻塞，但是它们都需要使用<code>MUL</code>单元，而<code>MUL</code>单元只有一个，因此在同一周期发射会导致资源冲突。</p>
+<p>那么，新的问题来了，何时能发射第二条<code>mul</code>指令呢？</p>
+<p>问题的答案自然很简单，在第一条<code>mul</code>指令释放<code>MUL</code>单元以后，第二条<code>mul</code>指令就能发射了，那么第一条<code>mul</code>指令何时会释放其占据的功能单元呢？</p>
+<p>不知道你是否想到第一篇中所提到的内容，如果一个功能单元是流水线化的，那么它每个周期都能进入一条新的指令，如果它不是流水线化的，那么它可能就会被占据多个周期再释放。</p>
+<p>因此，如果<code>MUL</code>单元是完全流水线化的，那么，第二条<code>mul</code>指令即可以在第三个周期被发射，如果<code>MUL</code>单元是非流水线化的，那么，我们就需要告诉调度器，这个功能单元会被占用多久了。</p>
+<p>最终，一个可以详细描述流水线中的资源使用情况的结构体定义如下所示，</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">FuncUnit</span> &#123;</span></span><br><span class="line">  <span class="comment">// How many does it have?</span></span><br><span class="line">  <span class="type">int</span> num_units; </span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Pipeline</span> &#123;</span></span><br><span class="line">  <span class="type">int</span> issue_width;</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">FuncUnit</span>* <span class="title">func_units</span>[];</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Ins</span> &#123;</span></span><br><span class="line">  <span class="comment">// How many mirco_ops does it have?</span></span><br><span class="line">  <span class="type">int</span> num_micro_ops;</span><br><span class="line">  <span class="comment">// Which FuncUnit does it take?</span></span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">FuncUnit</span>* <span class="title">used_unit</span>;</span></span><br><span class="line">  <span class="comment">// How many cycles does it take?</span></span><br><span class="line">  <span class="type">int</span> taken_cycles;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h3 id="About-Data-Conflicts">About Data Conflicts<a class="anchor" href="#About-Data-Conflicts">·</a></h3>
+<p>所谓数据冲突，自然是体系结构常说的，写后读，读后写，以及写后写，对应数据依赖，反依赖，以及输出依赖。其中反依赖和输出依赖称之为假依赖，可以通过寄存器重命名技术完全消除指令间的这两种依赖关系，而数据依赖是真依赖，是无法消除的。</p>
+<blockquote>
+<p>寄存器重命名技术通常使用在乱序 CPU 中，因此对于乱序 CPU，需要主要关注的是数据依赖。而顺序 CPU 为主要为了节省资源，很少会使用寄存器重命名技术，因此三种依赖关系都是需要考虑在内的。</p>
+</blockquote>
+<p>假设两条存在数据冲突的汇编分别为<code>A</code>和<code>B</code>，如下图所示，它们之间的边<code>Latency = n</code>表示它们需要间隔 n 个周期发射，才能保证流水线正常运行。</p>
+<pre><code class="highlight mermaid">graph TD
+    A -- Latency = n --&gt; B</code></pre>
+<p>对于反依赖来说，这是一种最简单的依赖关系，因为它只影响调度顺序，即使两条存在反依赖的指令被排布在一起，也不会导致流水线暂停。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">addi a1, a0, 1</span><br><span class="line">mul a0, a2, a3</span><br></pre></td></tr></table></figure>
+<p>如上汇编，<code>addi</code>读<code>a0</code>，<code>mul</code>写<code>a0</code>，这构成一条 WAR 反依赖。</p>
+<p>在大多数顺序CPU中，这类依赖并不会引起流水线暂停，因为读取和写回发生在不同的流水线阶段，并且读取阶段通常在写回阶段之前，如下图所示，<code>addi</code>如果和<code>mul</code>一起进入流水线，<code>addi</code>的读取发生在 ID 阶段，而<code>mul</code>的写回发生在 WB 阶段，前者是一定可以读取到正确的<code>a0</code>的值，而后者的写回也不会受到任何前者读取的影响。</p>
+<pre><code class="highlight mermaid">flowchart LR
+    IF[IF]
+    ID[ID]
+    EX[EX]
+    MEM[MEM]
+    WB[WB]
+
+    IF --&gt; ID
+    ID --&gt; EX
+    EX --&gt; MEM
+    MEM --&gt; WB</code></pre>
+<p>因此，我们认为两条存在反依赖的汇编之间的延迟为 0。</p>
+<pre><code class="highlight mermaid">graph TD
+    A0[addi a1, a0, 1]
+    A1[mul a0, a2, a3]
+
+    A0 -- WAR: Latency = 0 --&gt; A1</code></pre>
+<p>再看稍微复杂一些的输出依赖，如下，<code>addi</code>和<code>mul</code>均写<code>a0</code>寄存器，这构成一条 WAW 输出依赖。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">addi a0, a1, 1</span><br><span class="line">mul a0, a2, a3</span><br></pre></td></tr></table></figure>
+<p>对于这两条指令，我们依然可以像分析反依赖一样，假设两条汇编同时进入五级流水线，它们就会同时到达 WB 阶段。由于它们请求写入同一寄存器，而在没有复杂的优先级仲裁的情况下，一个寄存器同一周期只能允许一个值的写入。因此<code>addi</code>会在当前周期成功写入<code>a0</code>值，而<code>mul</code>指令则要等待下一个周期才能写入，因此如果两条存在 WAW 输出依赖的指令同时进入流水线，会发生一个周期的停顿。</p>
+<blockquote>
+<p>这里“没有复杂的优先级仲裁”说的主要也是顺序 CPU，顺序 CPU 的设计一般都会尽可能的降低功耗，节省资源，因此不会引入复杂的硬件机制，因此 WAW 输出依赖通常都会有一个周期的延迟，而乱序核是可以在一个周期发射存在 WAW 输出依赖的汇编指令的。</p>
+</blockquote>
+<p>因此，我们认为两条存在输出依赖的汇编之间的延迟为 1。</p>
+<pre><code class="highlight mermaid">graph TD
+    A0[addi a0, a1, 1]
+    A1[mul a0, a2, a3]
+
+    A0 -- WAW: Latency = 1 --&gt; A1</code></pre>
+<p>我们前面提到的两种数据依赖关系 —— 反依赖（WAR） 和 输出依赖（WAW） —— 本质上是与具体指令无关的。只要两条写相同寄存器的指令被安排在同一个周期发射，都会触发 WAW 冲突，不管它们是不是 <code>addi</code> 还是 <code>mul</code>。所以这类依赖在顺序核中，我们可以认为它们的延迟是定值，因此无需在调度模型中额外建模。</p>
+<p>但真正复杂的，是 RAW 数据依赖。这种依赖是和具体的指令、甚至是具体的操作数位置绑定在一起的，也就是说，看似相似的 RAW 依赖，所带来的延迟也不尽相同。</p>
+<p>例如我们来看下面这两段汇编：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">---1---</span><br><span class="line">addi a0, a1, 1</span><br><span class="line">mul a2, a0, a3</span><br><span class="line"></span><br><span class="line">---2---</span><br><span class="line">mul a0, a2, a3</span><br><span class="line">addi a1, a0, 1</span><br></pre></td></tr></table></figure>
+<p>它们都存在一个从 <code>a0</code> 读写之间的 RAW 依赖，但情况不一样：</p>
+<ul>
+<li>第一组中，<code>mul</code> 依赖的是 <code>addi</code> 的输出，它得等 <code>addi</code> 把结果写完，才能开始执行。</li>
+<li>第二组则是 <code>addi</code> 依赖 <code>mul</code> 的输出，由于 <code>mul</code> 通常比 <code>addi</code> 要慢，这种依赖导致更长的停顿。</li>
+</ul>
+<p>所以我们可以总结为，RAW 依赖的关键在于，前一条指令写出来的值，什么时候可以被后续指令读取？这个“什么时候”其实就是一个变量，而这个变量的值显然依赖于前一条指令。</p>
+<blockquote>
+<p>由于现代流水线会存在数据前推（Forwarding），它同样会影响两个汇编序列之间的实际延迟，这点也是需要在调度模型中进行建模的，但是本篇不讨论这个问题，我们将会下一节讨论 LLVM 和 gcc 的调度模型写法时再详述。</p>
+</blockquote>
+<p>为了让调度器能在建 DAG 图的时候考虑这些数据依赖延迟，我们需要在每条指令的调度信息中显式建模它。为此，我们给调度器使用的<code>Ins</code>结构体新增一个变量<code>latency</code>，</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">FuncUnit</span> &#123;</span></span><br><span class="line">  <span class="type">int</span> num_units; </span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Pipeline</span> &#123;</span></span><br><span class="line">  <span class="type">int</span> issue_width;</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">FuncUnit</span>* <span class="title">func_units</span>[];</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Ins</span> &#123;</span></span><br><span class="line">  <span class="type">int</span> num_micro_ops;</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">FuncUnit</span>* <span class="title">used_unit</span>;</span></span><br><span class="line">  <span class="type">int</span> taken_cycles;</span><br><span class="line">  <span class="comment">// How many cycles does its written-reg can be read after it issued. </span></span><br><span class="line">  <span class="type">int</span> latency;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>假设<code>addi</code>指令的<code>latency</code>为 1，<code>mul</code>指令的<code>latency</code>为 3，则上述两对汇编构建的 DAG 如下图所示。</p>
+<pre><code class="highlight mermaid">graph TD
+    A0[addi a0, a1, 1]
+    A1[mul a2, a0, a3]
+
+    A0 -- RAW: Latency = 1 --&gt; A1
+    
+    A2[mul a0, a2, a3]
+    A3[addi a1, a0, 1]
+
+    A2 -- RAW: Latency = 3 --&gt; A3</code></pre>
+<h2 id="Summarize">Summarize<a class="anchor" href="#Summarize">·</a></h2>
+<p>万万没有想到，三个简单的结构体，就基本能把流水线的结构、资源使用和数据依赖描述清楚了。</p>
+<p>对于下面这样一个简单的流水线，</p>
+<pre><code class="highlight mermaid">flowchart LR
+    %% Issue Paths
+    Issue0[Slot 0]
+    Issue1[Slot 1]
+
+    %% Connections
+    Issue0 --&gt; ALU0
+    Issue0 --&gt; ALU1
+    Issue0 --&gt; LDST
+    Issue0 --&gt; FP
+    Issue0 --&gt; MUL
+    Issue0 --&gt; DIV</code></pre>
+<p>我们将指令简单地分为五类，然后用我们定义的结构体来描述一下，</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">FuncUnit</span> <span class="title">ALU</span> =</span> &#123; .num_units = <span class="number">2</span> &#125;;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">FuncUnit</span> <span class="title">LDST</span> =</span> &#123; .num_units = <span class="number">1</span> &#125;;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">FuncUnit</span> <span class="title">FP</span>   =</span> &#123; .num_units = <span class="number">1</span> &#125;;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">FuncUnit</span> <span class="title">MUL</span> =</span> &#123; .num_units = <span class="number">1</span> &#125;;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">FuncUnit</span> <span class="title">DIV</span> =</span> &#123; .num_units = <span class="number">1</span> &#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Pipeline</span> <span class="title">Simple_Core</span> =</span> &#123;</span><br><span class="line">  <span class="comment">// 2 slots -- dual-issue pipeline.</span></span><br><span class="line">  .issue_width = <span class="number">2</span>,</span><br><span class="line">  .func_units = &#123; &amp;ALU, &amp;LDST, &amp;FP, &amp;MUL, &amp;DIV &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Ins</span> <span class="title">ALU_ins</span> =</span> &#123;</span><br><span class="line">  .num_micro_ops = <span class="number">1</span>,</span><br><span class="line">  .used_unit = &amp;ALU,</span><br><span class="line">  .taken_cycles = <span class="number">1</span>,</span><br><span class="line">  .latency = <span class="number">1</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Ins</span> <span class="title">MUL_ins</span> =</span> &#123;</span><br><span class="line">  .num_micro_ops = <span class="number">1</span>,</span><br><span class="line">  .used_unit = &amp;MUL,</span><br><span class="line">  <span class="comment">// assuming MUL is pipelined.</span></span><br><span class="line">  .taken_cycles = <span class="number">1</span>,</span><br><span class="line">  .latency = <span class="number">3</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Ins</span> <span class="title">DIV_ins</span> =</span> &#123;</span><br><span class="line">  .num_micro_ops = <span class="number">1</span>,</span><br><span class="line">  .used_unit = &amp;DIV,</span><br><span class="line">  <span class="comment">// assuming DIV is not-pipelined.</span></span><br><span class="line">  .taken_cycles = <span class="number">12</span>,</span><br><span class="line">  .latency = <span class="number">12</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Ins</span> <span class="title">FP_ins</span> =</span> &#123;</span><br><span class="line">  .num_micro_ops = <span class="number">1</span>,</span><br><span class="line">  .used_unit = &amp;FP,</span><br><span class="line">  <span class="comment">// assuming FP is not-pipelined.</span></span><br><span class="line">  .taken_cycles = <span class="number">5</span>,</span><br><span class="line">  .latency = <span class="number">5</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>下一篇我们将讲解 LLVM 和 GCC 中究竟是如何描述一个调度模型的，并且看一下与我在本节定义的结构体分别有哪些对应关系。</p>
+<p>Peace~ ✌️</p>
 
     </div>
 
