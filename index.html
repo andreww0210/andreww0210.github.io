@@ -20,12 +20,12 @@
 
 <script class="next-config" data-name="main" type="application/json">{"hostname":"andreww0210.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":true,"version":"8.23.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"utterances","storage":true,"lazyload":false,"nav":null,"activeClass":"utterances"},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
 
-    <meta name="description" content="New blogger sharing thoughts and learnings. Comments and emails welcome! (Please be nice)">
+    <meta name="description" content="New blogger sharing thoughts and learnings. Comments and emails welcome!">
 <meta property="og:type" content="website">
 <meta property="og:title" content="andreww&#39;s blog">
 <meta property="og:url" content="https://andreww0210.github.io/index.html">
 <meta property="og:site_name" content="andreww&#39;s blog">
-<meta property="og:description" content="New blogger sharing thoughts and learnings. Comments and emails welcome! (Please be nice)">
+<meta property="og:description" content="New blogger sharing thoughts and learnings. Comments and emails welcome!">
 <meta property="og:locale" content="en_US">
 <meta property="article:author" content="yinghao">
 <meta name="twitter:card" content="summary">
@@ -178,13 +178,13 @@
     <img class="site-author-image" itemprop="image" alt="yinghao"
       src="/images/avatar.png">
   <p class="site-author-name" itemprop="name">yinghao</p>
-  <div class="site-description" itemprop="description">New blogger sharing thoughts and learnings. Comments and emails welcome! (Please be nice)</div>
+  <div class="site-description" itemprop="description">New blogger sharing thoughts and learnings. Comments and emails welcome!</div>
 </div>
 <div class="site-state-wrap animated">
   <nav class="site-state">
       <div class="site-state-item site-state-posts">
         <a href="/archives/">
-          <span class="site-state-item-count">4</span>
+          <span class="site-state-item-count">5</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -211,6 +211,10 @@
             </div>
             <ul class="recent-posts-list">
               
+              
+                <li class="recent-posts-item">
+                  <a href="/2025/06/19/Scheduling-Models-3/" title="Scheduling Model:GCC and LLVM Perspectives">Scheduling Model:GCC and LLVM Perspectives</a>
+                </li>
               
                 <li class="recent-posts-item">
                   <a href="/2025/05/27/Scheduling-Models-2/" title="What We Need in a Scheduling Model">What We Need in a Scheduling Model</a>
@@ -250,6 +254,102 @@
   
 
   <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
+    <link itemprop="mainEntityOfPage" href="https://andreww0210.github.io/2025/06/19/Scheduling-Models-3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="yinghao">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="andreww's blog">
+      <meta itemprop="description" content="New blogger sharing thoughts and learnings. Comments and emails welcome!">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content=" | andreww's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          <a href="/2025/06/19/Scheduling-Models-3/" class="post-title-link" itemprop="url">Scheduling Model:GCC and LLVM Perspectives</a>
+        </h2>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2025-06-19 16:10:41" itemprop="dateCreated datePublished" datetime="2025-06-19T16:10:41+08:00">2025-06-19</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+          <h2 id="Posts-in-This-Series">Posts in This Series<a class="anchor" href="#Posts-in-This-Series">·</a></h2>
+<ol>
+<li><a href="/2025/05/16/Scheduling-Models-1/">Understanding In-Order Pipelines and Pipeline Stalls</a></li>
+<li><a href="/2025/05/27/Scheduling-Models-2/">What We Need in a Scheduling Model</a></li>
+<li><a href="/2025/06/19/Scheduling-Models-3/">Scheduling Model: GCC and LLVM Perspectives</a></li>
+<li>Tuning Your Scheduling Model for Better Performance(TODO)</li>
+</ol>
+<h2 id="A-Simple-Scheduling-Model">A Simple Scheduling Model<a class="anchor" href="#A-Simple-Scheduling-Model">·</a></h2>
+<p>在上一篇中我们提到，如果调度器想要通过指令重排布来解决流水线中的三大问题——发射阻塞、资源冲突以及数据冲突，那么它就需要知道一些流水线的硬件信息。</p>
+<p>为了避免发射阻塞，调度器需要知道流水线一次能发射多少条指令，也就是它有多少条发射通路。另外，每条指令可能会被解码成多个微操作，也需要考虑进去。</p>
+<p>对应我们结构体中的字段是：</p>
+<ul>
+<li><code>Pipeline.issue_width</code></li>
+<li><code>Ins.num_micro_ops</code></li>
+</ul>
+<p>而要避免资源冲突，调度器需要知道：</p>
+<ul>
+<li>流水线有哪些功能单元</li>
+<li>每种功能单元有多少个</li>
+<li>每条指令会用到哪些功能单元，以及需要使用多久</li>
+</ul>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2025/06/19/Scheduling-Models-3/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+</div>
+
+
+
+
+    
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="">
     <link itemprop="mainEntityOfPage" href="https://andreww0210.github.io/2025/05/27/Scheduling-Models-2/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -259,7 +359,7 @@
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
       <meta itemprop="name" content="andreww's blog">
-      <meta itemprop="description" content="New blogger sharing thoughts and learnings. Comments and emails welcome! (Please be nice)">
+      <meta itemprop="description" content="New blogger sharing thoughts and learnings. Comments and emails welcome!">
     </span>
 
     <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
@@ -292,13 +392,12 @@
     
     
     <div class="post-body" itemprop="articleBody">
-          <h2 id="Framework">Framework<a class="anchor" href="#Framework">·</a></h2>
+          <h2 id="Posts-in-This-Series">Posts in This Series<a class="anchor" href="#Posts-in-This-Series">·</a></h2>
 <ol>
 <li><a href="/2025/05/16/Scheduling-Models-1/">Understanding In-Order Pipelines and Pipeline Stalls</a></li>
 <li><a href="/2025/05/27/Scheduling-Models-2/">What We Need in a Scheduling Model</a></li>
-<li>Scheduling Model: GCC and LLVM Perspectives</li>
-<li>Tuning Your Scheduling Model for Better Performance</li>
-<li>Recommended Readings on Out-of-Order Execution and Scheduling</li>
+<li><a href="/2025/06/19/Scheduling-Models-3/">Scheduling Model: GCC and LLVM Perspectives</a></li>
+<li>Tuning Your Scheduling Model for Better Performance(TODO)</li>
 </ol>
 <h2 id="Recap">Recap<a class="anchor" href="#Recap">·</a></h2>
 <p>第一篇文章中，我们已经说过，调度器主要是用来解决三类冲突，</p>
@@ -356,7 +455,7 @@
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
       <meta itemprop="name" content="andreww's blog">
-      <meta itemprop="description" content="New blogger sharing thoughts and learnings. Comments and emails welcome! (Please be nice)">
+      <meta itemprop="description" content="New blogger sharing thoughts and learnings. Comments and emails welcome!">
     </span>
 
     <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
@@ -389,13 +488,12 @@
     
     
     <div class="post-body" itemprop="articleBody">
-          <h2 id="Framework">Framework<a class="anchor" href="#Framework">·</a></h2>
+          <h2 id="Posts-in-This-Series">Posts in This Series<a class="anchor" href="#Posts-in-This-Series">·</a></h2>
 <ol>
 <li><a href="/2025/05/16/Scheduling-Models-1/">Understanding In-Order Pipelines and Pipeline Stalls</a></li>
 <li><a href="/2025/05/27/Scheduling-Models-2/">What We Need in a Scheduling Model</a></li>
-<li>Scheduling Model: GCC and LLVM Perspectives</li>
-<li>Tuning Your Scheduling Model for Better Performance</li>
-<li>Recommended Readings on Out-of-Order Execution and Scheduling</li>
+<li><a href="/2025/06/19/Scheduling-Models-3/">Scheduling Model: GCC and LLVM Perspectives</a></li>
+<li>Tuning Your Scheduling Model for Better Performance(TODO)</li>
 </ol>
 <h2 id="Extended-in-order-pipeline">Extended in-order pipeline<a class="anchor" href="#Extended-in-order-pipeline">·</a></h2>
 <h3 id="Extended-EX-stage-pipeline">Extended EX stage pipeline<a class="anchor" href="#Extended-EX-stage-pipeline">·</a></h3>
@@ -457,7 +555,7 @@
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
       <meta itemprop="name" content="andreww's blog">
-      <meta itemprop="description" content="New blogger sharing thoughts and learnings. Comments and emails welcome! (Please be nice)">
+      <meta itemprop="description" content="New blogger sharing thoughts and learnings. Comments and emails welcome!">
     </span>
 
     <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
@@ -540,7 +638,7 @@
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
       <meta itemprop="name" content="andreww's blog">
-      <meta itemprop="description" content="New blogger sharing thoughts and learnings. Comments and emails welcome! (Please be nice)">
+      <meta itemprop="description" content="New blogger sharing thoughts and learnings. Comments and emails welcome!">
     </span>
 
     <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">

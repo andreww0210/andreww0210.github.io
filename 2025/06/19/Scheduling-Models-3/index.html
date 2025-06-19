@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"andreww0210.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":true,"version":"8.23.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"utterances","storage":true,"lazyload":false,"nav":null,"activeClass":"utterances"},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"},"path":"/search.json","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="Posts in This Series·  Understanding In-Order Pipelines and Pipeline Stalls What We Need in a Scheduling Model Scheduling Model: GCC and LLVM Perspectives Tuning Your Scheduling Model for Better Perfo">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Scheduling Model:GCC and LLVM Perspectives">
+<meta property="og:url" content="https://andreww0210.github.io/2025/06/19/Scheduling-Models-3/index.html">
+<meta property="og:site_name" content="andreww&#39;s blog">
+<meta property="og:description" content="Posts in This Series·  Understanding In-Order Pipelines and Pipeline Stalls What We Need in a Scheduling Model Scheduling Model: GCC and LLVM Perspectives Tuning Your Scheduling Model for Better Perfo">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2025-06-19T08:10:41.000Z">
+<meta property="article:modified_time" content="2025-06-19T08:22:38.324Z">
+<meta property="article:author" content="yinghao">
+<meta property="article:tag" content="instruction scheduling">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://andreww0210.github.io/2025/06/19/Scheduling-Models-3/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://andreww0210.github.io/2025/06/19/Scheduling-Models-3/","path":"2025/06/19/Scheduling-Models-3/","title":"Scheduling Model:GCC and LLVM Perspectives"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Scheduling Model:GCC and LLVM Perspectives | andreww's blog</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-SSRWPJJEL4"></script>
+  <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-SSRWPJJEL4","only_pageview":false,"measure_protocol_api_secret":null}</script>
+  <script src="/js/third-party/analytics/google-analytics.js" defer></script>
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.5.0/mermaid.min.js","integrity":"sha256-2obLuIPcceEhkE3G09G33hBdmE55ivVcZUlcKcGNHjU="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-SSRWPJJEL4"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-SSRWPJJEL4');
+</script>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">andreww's blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="Searching..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Posts-in-This-Series"><span class="nav-number">1.</span> <span class="nav-text">Posts in This Series</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#A-Simple-Scheduling-Model"><span class="nav-number">2.</span> <span class="nav-text">A Simple Scheduling Model</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#LLVM-Scheduling-Model"><span class="nav-number">3.</span> <span class="nav-text">LLVM Scheduling Model</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#FuncUnits-description"><span class="nav-number">3.1.</span> <span class="nav-text">FuncUnits description</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Pipeline-description"><span class="nav-number">3.2.</span> <span class="nav-text">Pipeline description</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Instruction-description"><span class="nav-number">3.3.</span> <span class="nav-text">Instruction description</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#SchedWrite-and-SchedRead"><span class="nav-number">3.3.1.</span> <span class="nav-text">SchedWrite and SchedRead</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ReadAdvance"><span class="nav-number">3.3.2.</span> <span class="nav-text">ReadAdvance</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Summary"><span class="nav-number">3.4.</span> <span class="nav-text">Summary</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#GCC-Scheduling-Model"><span class="nav-number">4.</span> <span class="nav-text">GCC Scheduling Model</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#FuncUnits-description-2"><span class="nav-number">4.1.</span> <span class="nav-text">FuncUnits description</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Instruction-description-2"><span class="nav-number">4.2.</span> <span class="nav-text">Instruction description</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Forwarding-description"><span class="nav-number">4.3.</span> <span class="nav-text">Forwarding description</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Reference"><span class="nav-number">5.</span> <span class="nav-text">Reference</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="yinghao"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">yinghao</p>
+  <div class="site-description" itemprop="description">New blogger sharing thoughts and learnings. Comments and emails welcome!</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">5</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/andreww0210" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;andreww0210" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:itsyinghao@gmail.com" title="E-Mail → mailto:itsyinghao@gmail.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+          <div class="recent-posts">
+            <div class="links-of-blogroll-title">
+              <i class="fa fa-history fa-fw"></i> Recent Posts
+            </div>
+            <ul class="recent-posts-list">
+              
+              
+                <li class="recent-posts-item">
+                  <a href="/2025/06/19/Scheduling-Models-3/" title="Scheduling Model:GCC and LLVM Perspectives">Scheduling Model:GCC and LLVM Perspectives</a>
+                </li>
+              
+                <li class="recent-posts-item">
+                  <a href="/2025/05/27/Scheduling-Models-2/" title="What We Need in a Scheduling Model">What We Need in a Scheduling Model</a>
+                </li>
+              
+                <li class="recent-posts-item">
+                  <a href="/2025/05/16/Scheduling-Models-1/" title="In-Order Pipeline and Pipeline Stalls">In-Order Pipeline and Pipeline Stalls</a>
+                </li>
+              
+                <li class="recent-posts-item">
+                  <a href="/2023/11/17/My-Hello-World/" title="It's my Hello,World!">It's my Hello,World!</a>
+                </li>
+              
+                <li class="recent-posts-item">
+                  <a href="/2022/02/10/How-to-use-hexo/" title="How to use hexo">How to use hexo</a>
+                </li>
+              
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://andreww0210.github.io/2025/06/19/Scheduling-Models-3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="yinghao">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="andreww's blog">
+      <meta itemprop="description" content="New blogger sharing thoughts and learnings. Comments and emails welcome!">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Scheduling Model:GCC and LLVM Perspectives | andreww's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Scheduling Model:GCC and LLVM Perspectives
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2025-06-19 16:10:41" itemprop="dateCreated datePublished" datetime="2025-06-19T16:10:41+08:00">2025-06-19</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="Posts-in-This-Series">Posts in This Series<a class="anchor" href="#Posts-in-This-Series">·</a></h2>
+<ol>
+<li><a href="/2025/05/16/Scheduling-Models-1/">Understanding In-Order Pipelines and Pipeline Stalls</a></li>
+<li><a href="/2025/05/27/Scheduling-Models-2/">What We Need in a Scheduling Model</a></li>
+<li><a href="/2025/06/19/Scheduling-Models-3/">Scheduling Model: GCC and LLVM Perspectives</a></li>
+<li>Tuning Your Scheduling Model for Better Performance(TODO)</li>
+</ol>
+<h2 id="A-Simple-Scheduling-Model">A Simple Scheduling Model<a class="anchor" href="#A-Simple-Scheduling-Model">·</a></h2>
+<p>在上一篇中我们提到，如果调度器想要通过指令重排布来解决流水线中的三大问题——发射阻塞、资源冲突以及数据冲突，那么它就需要知道一些流水线的硬件信息。</p>
+<p>为了避免发射阻塞，调度器需要知道流水线一次能发射多少条指令，也就是它有多少条发射通路。另外，每条指令可能会被解码成多个微操作，也需要考虑进去。</p>
+<p>对应我们结构体中的字段是：</p>
+<ul>
+<li><code>Pipeline.issue_width</code></li>
+<li><code>Ins.num_micro_ops</code></li>
+</ul>
+<p>而要避免资源冲突，调度器需要知道：</p>
+<ul>
+<li>流水线有哪些功能单元</li>
+<li>每种功能单元有多少个</li>
+<li>每条指令会用到哪些功能单元，以及需要使用多久</li>
+</ul>
+<span id="more"></span>
+<p>对应字段是：</p>
+<ul>
+<li><code>Pipeline.func_units</code></li>
+<li><code>FuncUnit.num_units</code></li>
+<li><code>Ins.used_unit</code></li>
+<li><code>Ins.taken_cycles</code></li>
+</ul>
+<p>为了解决数据冲突，调度器必须知道，某条指令写入的寄存器，经过多少个周期后才能被其他指令读取</p>
+<p>对应：</p>
+<ul>
+<li><code>Ins.latency</code></li>
+</ul>
+<p>我们用三个结构体就能把这些信息抽象得很干净，</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">FuncUnit</span> &#123;</span></span><br><span class="line">  <span class="type">int</span> num_units; </span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Pipeline</span> &#123;</span></span><br><span class="line">  <span class="type">int</span> issue_width;</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">FuncUnit</span>* <span class="title">func_units</span>[];</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Ins</span> &#123;</span></span><br><span class="line">  <span class="type">int</span> num_micro_ops;</span><br><span class="line">  <span class="class"><span class="keyword">struct</span> <span class="title">FuncUnit</span>* <span class="title">used_unit</span>;</span></span><br><span class="line">  <span class="type">int</span> taken_cycles;</span><br><span class="line">  <span class="type">int</span> latency;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>假设我们有一个双发射（Dual-Issue）流水线，它有以下几种功能单元：</p>
+<ul>
+<li>2 个 ALU（算术逻辑单元）</li>
+<li>1 个 LDST（加载/存储单元）</li>
+<li>1 个 FP（浮点单元，非流水线化）</li>
+<li>1 个 MUL（乘法单元）</li>
+<li>1 个 DIV（除法单元，非流水线化）</li>
+</ul>
+<p>我们用如下图示意一下，</p>
+<pre><code class="highlight mermaid">flowchart LR
+    %% Issue Paths
+    Issue0[Slot 0]
+    Issue1[Slot 1]
+
+    %% Connections
+    Issue0 --&gt; ALU0
+    Issue0 --&gt; ALU1
+    Issue0 --&gt; LDST
+    Issue0 --&gt; MUL
+    Issue0 --&gt; DIV[Non-Pipelined DIV]
+    Issue0 --&gt; FP[Non-Pipelined FP]</code></pre>
+<p>我们可以通过抽象出来的三个结构体，很轻松地描述出这个流水线，</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">FuncUnit</span> <span class="title">ALU</span> =</span> &#123; .num_units = <span class="number">2</span> &#125;;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">FuncUnit</span> <span class="title">LDST</span> =</span> &#123; .num_units = <span class="number">1</span> &#125;;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">FuncUnit</span> <span class="title">FP</span>   =</span> &#123; .num_units = <span class="number">1</span> &#125;;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">FuncUnit</span> <span class="title">MUL</span> =</span> &#123; .num_units = <span class="number">1</span> &#125;;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">FuncUnit</span> <span class="title">DIV</span> =</span> &#123; .num_units = <span class="number">1</span> &#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Pipeline</span> <span class="title">Simple_Core</span> =</span> &#123;</span><br><span class="line">  <span class="comment">// 2 slots -- dual-issue pipeline.</span></span><br><span class="line">  .issue_width = <span class="number">2</span>,</span><br><span class="line">  .func_units = &#123; &amp;ALU, &amp;LDST, &amp;FP, &amp;MUL, &amp;DIV &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Ins</span> <span class="title">ALU_ins</span> =</span> &#123;</span><br><span class="line">  .num_micro_ops = <span class="number">1</span>,</span><br><span class="line">  .used_unit = &amp;ALU,</span><br><span class="line">  .taken_cycles = <span class="number">1</span>,</span><br><span class="line">  .latency = <span class="number">1</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Ins</span> <span class="title">MUL_ins</span> =</span> &#123;</span><br><span class="line">  .num_micro_ops = <span class="number">1</span>,</span><br><span class="line">  .used_unit = &amp;MUL,</span><br><span class="line">  <span class="comment">// assuming MUL is pipelined.</span></span><br><span class="line">  .taken_cycles = <span class="number">1</span>,</span><br><span class="line">  .latency = <span class="number">3</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Ins</span> <span class="title">LDST_ins</span> =</span> &#123;</span><br><span class="line">  .num_micro_ops = <span class="number">1</span>,</span><br><span class="line">  .used_unit = &amp;LDST,</span><br><span class="line">  <span class="comment">// assuming LDST is pipelined.</span></span><br><span class="line">  .taken_cycles = <span class="number">1</span>,</span><br><span class="line">  .latency = <span class="number">3</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Ins</span> <span class="title">DIV_ins</span> =</span> &#123;</span><br><span class="line">  .num_micro_ops = <span class="number">1</span>,</span><br><span class="line">  .used_unit = &amp;DIV,</span><br><span class="line">  <span class="comment">// assuming DIV is not-pipelined.</span></span><br><span class="line">  .taken_cycles = <span class="number">12</span>,</span><br><span class="line">  .latency = <span class="number">12</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Ins</span> <span class="title">FP_ins</span> =</span> &#123;</span><br><span class="line">  .num_micro_ops = <span class="number">1</span>,</span><br><span class="line">  .used_unit = &amp;FP,</span><br><span class="line">  <span class="comment">// assuming FP is not-pipelined.</span></span><br><span class="line">  .taken_cycles = <span class="number">5</span>,</span><br><span class="line">  .latency = <span class="number">5</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>听起来可能有点不可思议，但这三个结构体，确实可以描述绝大多数流水线架构的调度行为。没错，就是这么简单。</p>
+<p>当然，在实际的工程中，比如 LLVM 或 GCC，它们的调度模型肯定比这个复杂得多。毕竟它们要支持所有的指令，并且要融入编译器自身的 IR 和 Pass 架构，以及要使用更通用的建模方式，比如 LLVM 中使用 tablegen 来生成调度模型。</p>
+<p>但是万变不离其宗。无论外壳如何复杂，底层所依赖的信息，其实就是我们上面展示的这些。</p>
+<h2 id="LLVM-Scheduling-Model">LLVM Scheduling Model<a class="anchor" href="#LLVM-Scheduling-Model">·</a></h2>
+<p>LLVM 调度模型的核心定义均位于 <a target="_blank" rel="noopener" href="https://github.com/llvm/llvm-project/blob/main/llvm/include/llvm/Target/TargetSchedule.td">llvm/include/llvm/Target/TargetSchedule.td</a> 中，但直接去看这些 tablegen 代码，可能会直接淹死在代码海里，并且其中很多的 class 其实是为了一些特定用途而设计的，使用频率很低，因此我们还是直接看看实际的调度模型代码，看看核心 class 的用法。</p>
+<h3 id="FuncUnits-description">FuncUnits description<a class="anchor" href="#FuncUnits-description">·</a></h3>
+<p><a target="_blank" rel="noopener" href="https://github.com/llvm/llvm-project/blob/main/llvm/lib/Target/RISCV/RISCVSchedAndes45.td">llvm/lib/Target/RISCV/RISCVSchedAndes45.td</a> 是上游添加的描述<code>AndesD45</code>流水线的调度模型文件，我们可以从这个文件看看如何使用 LLVM 定义流水线资源的。</p>
+<p>源码注释中详细描述了<code>AndesD45</code>流水线的功能单元种类和数量，</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//===----------------------------------------------------------------------===//</span></span><br><span class="line"><span class="comment">// Andes 45 series CPU</span></span><br><span class="line"><span class="comment">//   - 2 Interger Arithmetic and Logical Units (ALU)</span></span><br><span class="line"><span class="comment">//   - Multiply / Divide Unit (MDU)</span></span><br><span class="line"><span class="comment">//   - Load Store Unit (LSU)</span></span><br><span class="line"><span class="comment">//   - Control and Status Register Unit (CSR)</span></span><br><span class="line"><span class="comment">//   - Floating Point Multiply-Accumulate Unit (FMAC)</span></span><br><span class="line"><span class="comment">//   - Floating Point Divide / SQRT Unit (FDIV)</span></span><br><span class="line"><span class="comment">//   - Floating Point Move Unit (FMV)</span></span><br><span class="line"><span class="comment">//   - Floating Point Misc Unit (FMISC)</span></span><br><span class="line"><span class="comment">//===----------------------------------------------------------------------===//</span></span><br></pre></td></tr></table></figure>
+<p>如果使用我们定义的结构体，类似如下形式，</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">FuncUnit</span> <span class="title">ALU</span> =</span> &#123; .num_units = <span class="number">2</span> &#125;;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">FuncUnit</span> <span class="title">MDU</span> =</span> &#123; .num_units = <span class="number">1</span> &#125;;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">FuncUnit</span> <span class="title">LSU</span>   =</span> &#123; .num_units = <span class="number">1</span> &#125;;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">FuncUnit</span> <span class="title">CSR</span> =</span> &#123; .num_units = <span class="number">1</span> &#125;;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">FuncUnit</span> <span class="title">FMAC</span> =</span> &#123; .num_units = <span class="number">1</span> &#125;;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">FuncUnit</span> <span class="title">FDIV</span> =</span> &#123; .num_units = <span class="number">1</span> &#125;;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">FuncUnit</span> <span class="title">FMV</span> =</span> &#123; .num_units = <span class="number">1</span> &#125;;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">FuncUnit</span> <span class="title">FMISC</span> =</span> &#123; .num_units = <span class="number">1</span> &#125;;</span><br></pre></td></tr></table></figure>
+<p>而在 tablegen 中的写法也比较直观，</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">def Andes45ALU : ProcResource&lt;<span class="number">2</span>&gt;;</span><br><span class="line">def Andes45MDU : ProcResource&lt;<span class="number">1</span>&gt;;</span><br><span class="line">def Andes45LSU : ProcResource&lt;<span class="number">1</span>&gt;;</span><br><span class="line">def Andes45CSR : ProcResource&lt;<span class="number">1</span>&gt;;</span><br><span class="line"></span><br><span class="line">def Andes45FMAC  : ProcResource&lt;<span class="number">1</span>&gt;;</span><br><span class="line">def Andes45FDIV  : ProcResource&lt;<span class="number">1</span>&gt;;</span><br><span class="line">def Andes45FMV   : ProcResource&lt;<span class="number">1</span>&gt;;</span><br><span class="line">def Andes45FMISC : ProcResource&lt;<span class="number">1</span>&gt;;</span><br></pre></td></tr></table></figure>
+<p><code>ProcResource</code> 继承自 <code>ProcResourceUnits</code>，本质上和我们定义的 <code>FuncUnit</code> 是一个意思，都表示一种功能单元及其数量，只不过 LLVM 在这个基础上还拓展了更多数据。</p>
+<p>在定义 <code>ProcResource</code> 必须要传入一个 <code>int</code> 值去初始化 <code>ProcResourceUnits</code> 中的 <code>NumUnits</code> ，此变量即对应我们定义的结构体中的 <code>FuncUnit-&gt;num_units</code>，表示该功能单元的数量。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">ProcResource</span>&lt;<span class="type">int</span> num&gt; : ProcResourceKind,</span><br><span class="line">  ProcResourceUnits&lt;!<span class="built_in">cast</span>&lt;ProcResourceKind&gt;(NAME), num&gt;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ProcResourceUnits</span>&lt;ProcResourceKind kind, <span class="type">int</span> num&gt; &#123;</span><br><span class="line">  <span class="type">int</span> NumUnits = num;</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看出，语言其实只是载体，tablegen 语言只是换了一种表达形式而已，它们承载的核心信息其实是类似的。</p>
+<p>当然，<code>ProcResourceUnits</code>不可能只包含一个<code>NumUnits</code>，它还有一些其他的成员变量，</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">ProcResourceUnits</span>&lt;ProcResourceKind kind, <span class="type">int</span> num&gt; &#123;</span><br><span class="line">  ProcResourceKind Kind = kind;</span><br><span class="line">  <span class="type">int</span> NumUnits = num;</span><br><span class="line">  ProcResourceKind Super = ?;</span><br><span class="line">  <span class="type">int</span> BufferSize = <span class="number">-1</span>;</span><br><span class="line">  SchedMachineModel SchedModel = ?;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>Kind</code> 是功能单元的唯一标识</li>
+<li><code>Super</code> 表示父功能单元，例如某些子资源的占用同时也会占用上层资源</li>
+<li><code>BufferSize</code> 表示该资源的保留站大小（对于乱序核来说，通常大于 0）</li>
+<li><code>SchedModel</code> 指向其所属的调度模型</li>
+</ul>
+<p>参考 <a target="_blank" rel="noopener" href="https://github.com/llvm/llvm-project/blob/main/llvm/lib/Target/AArch64/AArch64SchedCyclone.td">llvm/lib/Target/AArch64/AArch64SchedCyclone.td</a>，Apple Cyclone 的调度模型里定义了一个 <code>CyUnitIS</code>，它是 <code>CyUnitI</code>的子资源。这意味着使用 <code>CyUnitIS</code> 的同时也会占用 <code>CyUnitI</code>。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 4 integer pipes</span></span><br><span class="line">def CyUnitI : ProcResource&lt;<span class="number">4</span>&gt; &#123;</span><br><span class="line">  let BufferSize = <span class="number">48</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 2 shifter pipes: I[2..3]</span></span><br><span class="line"><span class="comment">// When an instruction consumes a CyUnitIS, it also consumes a CyUnitI</span></span><br><span class="line">def CyUnitIS : ProcResource&lt;<span class="number">2</span>&gt; &#123;</span><br><span class="line">  let Super = CyUnitI;</span><br><span class="line">  let BufferSize = <span class="number">24</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这一设计，在如下图所示的 Apple Cyclone 流水线图中也能看出，此 Pipeline 有四条 Integer ALU 通路，总的 entry 数量为 48，因此 <code>CyUnitI</code> 的 <code>BufferSize</code> 为 48，并且 <code>NumUnits</code> 为 4。而 <code>CyUnitIS</code> 表示两个专门处理移位操作的通路，从图中可以看到，仅有两个，并且当有指令进入 Shift 通路的时候，同一时刻后两个 Integer ALU 通路也应该被占用，通过 <code>Super</code> 可以达到此目的。</p>
+<figure>
+  <img
+    src="https://images.anandtech.com/doci/7910/Cyclone.png"
+    alt="Apple Cyclone">
+  <figcaption>
+    Apple Cyclone Pipeline (From 
+    <a target="_blank" rel="noopener" href="https://www.anandtech.com/show/7910/apples-cyclone-microarchitecture-detailed">
+      anandtech.com
+    </a>
+    )
+  </figcaption>
+</figure>
+<h3 id="Pipeline-description">Pipeline description<a class="anchor" href="#Pipeline-description">·</a></h3>
+<p>我们前面定义的 <code>Pipeline</code> 结构体如下，</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Pipeline</span> <span class="title">Simple_Core</span> =</span> &#123;</span><br><span class="line">  <span class="comment">// 2 slots -- dual-issue pipeline.</span></span><br><span class="line">  .issue_width = <span class="number">2</span>,</span><br><span class="line">  .func_units = &#123; &amp;ALU, &amp;LDST, &amp;FP, &amp;MUL, &amp;DIV &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p><code>issue_width</code> 表示发射通路数量，<code>func_units</code> 是功能单元集合。</p>
+<p>LLVM 中的调度模型定义是通过 <code>SchedMachineModel</code> 进行建模的。我们可以看看 <code>Andes45Model</code> 是如何定义的，</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">def Andes45Model : SchedMachineModel &#123;</span><br><span class="line">  let MicroOpBufferSize = <span class="number">0</span>;  <span class="comment">// Andes45 is in-order processor</span></span><br><span class="line">  let IssueWidth = <span class="number">2</span>;         <span class="comment">// 2 micro-ops dispatched per cycle</span></span><br><span class="line">  let LoadLatency = <span class="number">2</span>;</span><br><span class="line">  let MispredictPenalty = <span class="number">5</span>;</span><br><span class="line">  let CompleteModel = <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>其中：</p>
+<ul>
+<li><code>IssueWidth</code>：发射宽度，用于告诉调度器每个周期可以发射几条微操作</li>
+<li><code>MicroOpBufferSize</code>：与乱序核相关，用于建模统一保留站，0 表示顺序核</li>
+<li><code>LoadLatency</code>：load 指令的默认延迟</li>
+<li><code>MispredictPenalty</code>：分支预测失败的代价</li>
+<li><code>CompleteModel</code>：设为 1 会强制所有指令都必须定义延迟信息，否则报错，适合调试用</li>
+</ul>
+<p><code>MicroOpBufferSize</code> 看起来可能会容易与 <code>ProcResourceUnits</code> 的 <code>BufferSize</code> 混淆，两者其实是为了分别表示 <code>Unified reservation station</code> 和 <code>Decoupled reservation stations</code>，这部分<a target="_blank" rel="noopener" href="https://myhsu.xyz/llvm-sched-model-1/">这篇博客</a>有更详细的表述。</p>
+<p><code>LoadLatency</code> 用于对有 <code>mayLoad</code> 属性的指令给定一个默认值作其 <code>Latency</code>。如果没有显式定义一个 <code>mayLoad</code> 指令的 <code>Latency</code> ，则 <code>LoadLatency</code> 会作为其默认值在 <code>TargetInstrInfo::defaultDefLatency</code> 中返回。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/// Return the default expected latency for a def based on it&#x27;s opcode.</span></span><br><span class="line"><span class="function"><span class="type">unsigned</span> <span class="title">TargetInstrInfo::defaultDefLatency</span><span class="params">(<span class="type">const</span> MCSchedModel &amp;SchedModel,</span></span></span><br><span class="line"><span class="params"><span class="function">                                            <span class="type">const</span> MachineInstr &amp;DefMI)</span> <span class="type">const</span> </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (DefMI.<span class="built_in">isTransient</span>())</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">if</span> (DefMI.<span class="built_in">mayLoad</span>())</span><br><span class="line">    <span class="keyword">return</span> SchedModel.LoadLatency;</span><br><span class="line">  <span class="keyword">if</span> (<span class="built_in">isHighLatencyDef</span>(DefMI.<span class="built_in">getOpcode</span>()))</span><br><span class="line">    <span class="keyword">return</span> SchedModel.HighLatency;</span><br><span class="line">  <span class="keyword">return</span> <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>MispredictPenalty</code> 代表如果发生分支预测失败，大概可能会导致多少个周期的流水线停顿。之前说过，调度器并不关心也无法处理分支预测失败导致的流水线停顿，但是这里为什么会有这个变量呢？这是因为与分支优化相关的 Pass 可能需要这个流水线信息来做对应的优化决策，这个变量是提供给其他和分支优化相关的 Pass 查询使用的， 并不是提供给调度器使用的。</p>
+<p><code>CompleteModel</code>主要可以用来检测调度模型是否定义完整，是否涵盖到所有的指令，如果 <code>CompleteModel</code> 被设置为 1，而有指令未进行 <code>Latency</code> 相关的定义，则会报错。开发者可以利用此来检测是否有指令遗漏了延迟信息等定义。检测的代码如下，</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">  <span class="comment">// If DefIdx does not exist in the model (e.g. implicit defs), then return</span></span><br><span class="line">  <span class="comment">// unit latency (defaultDefLatency may be too conservative).</span></span><br><span class="line"><span class="meta">#<span class="keyword">ifndef</span> NDEBUG</span></span><br><span class="line">  <span class="keyword">if</span> (SCDesc-&gt;<span class="built_in">isValid</span>() &amp;&amp; !DefMI-&gt;<span class="built_in">getOperand</span>(DefOperIdx).<span class="built_in">isImplicit</span>() &amp;&amp;</span><br><span class="line">      !DefMI-&gt;<span class="built_in">getDesc</span>().<span class="built_in">operands</span>()[DefOperIdx].<span class="built_in">isOptionalDef</span>() &amp;&amp;</span><br><span class="line">      SchedModel.<span class="built_in">isComplete</span>()) &#123;</span><br><span class="line">    <span class="built_in">errs</span>() &lt;&lt; <span class="string">&quot;DefIdx &quot;</span> &lt;&lt; DefIdx &lt;&lt; <span class="string">&quot; exceeds machine model writes for &quot;</span></span><br><span class="line">           &lt;&lt; *DefMI &lt;&lt; <span class="string">&quot; (Try with MCSchedModel.CompleteModel set to false)&quot;</span>;</span><br><span class="line">    <span class="built_in">llvm_unreachable</span>(<span class="string">&quot;incomplete machine model&quot;</span>);</span><br><span class="line">  &#125;</span><br><span class="line"><span class="meta">#<span class="keyword">endif</span></span></span><br></pre></td></tr></table></figure>
+<p>父类 <code>SchedMachineModel</code> 中还有一些其他的变量定义，用于一些特殊的用途，就交给读者自己发掘了。</p>
+<h3 id="Instruction-description">Instruction description<a class="anchor" href="#Instruction-description">·</a></h3>
+<p>对于单条指令的调度信息，前面我们用结构体定义了一条 <code>mul</code> 指令的调度信息，</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Ins</span> <span class="title">MUL_ins</span> =</span> &#123;</span><br><span class="line">  .num_micro_ops = <span class="number">1</span>,</span><br><span class="line">  .used_unit = &amp;MUL,</span><br><span class="line">  <span class="comment">// assuming MUL is pipelined.</span></span><br><span class="line">  .taken_cycles = <span class="number">1</span>,</span><br><span class="line">  .latency = <span class="number">3</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>如果在 LLVM 的 tablegen 里建模，写法大致如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">let NumMicroOps = <span class="number">1</span>, ReleaseAtCycles = <span class="number">1</span>, Latency = <span class="number">3</span> in &#123;</span><br><span class="line">  def : WriteRes&lt;WriteIMul, [MUL]&gt;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里的 <code>WriteRes</code> 继承自 <code>ProcWriteResources</code>，它的核心作用是描述指令对功能单元的占用情况。参数<code>WriteIMul</code> 是一个 <code>SchedWrite</code> ，参数 <code>[MUL]</code> 表示用到的资源列表。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">WriteRes</span>&lt;SchedWrite write, list&lt;ProcResourceKind&gt; resources&gt;</span><br><span class="line">  : ProcWriteResources&lt;resources&gt; &#123;</span><br><span class="line">  SchedWrite WriteType = write;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">ProcWriteResources</span>&lt;list&lt;ProcResourceKind&gt; resources&gt; &#123;</span><br><span class="line">  list&lt;ProcResourceKind&gt; ProcResources = resources;</span><br><span class="line">  list&lt;<span class="type">int</span>&gt; ReleaseAtCycles = [];</span><br><span class="line">  <span class="type">int</span> Latency = <span class="number">1</span>;</span><br><span class="line">  <span class="type">int</span> NumMicroOps = <span class="number">1</span>;</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>它们和我们前面结构体的字段一一对应，</p>
+<table>
+<thead>
+<tr>
+<th>结构体字段</th>
+<th>TableGen 字段</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>num_micro_ops</td>
+<td>NumMicroOps</td>
+<td>微操作数量</td>
+</tr>
+<tr>
+<td>used_unit</td>
+<td>ProcResources</td>
+<td>哪些资源被使用</td>
+</tr>
+<tr>
+<td>taken_cycles</td>
+<td>ReleaseAtCycles</td>
+<td>使用该资源多少个周期</td>
+</tr>
+<tr>
+<td>latency</td>
+<td>Latency</td>
+<td>等待多少周期可用</td>
+</tr>
+</tbody>
+</table>
+<h4 id="SchedWrite-and-SchedRead">SchedWrite and SchedRead<a class="anchor" href="#SchedWrite-and-SchedRead">·</a></h4>
+<p>在 LLVM 的调度模型中，每条汇编指令在定义时，会将目的寄存器和源寄存器分别绑定到 <code>SchedWrite</code> 和 <code>SchedRead</code>。这样，调度器可以分别对每个操作数的资源占用和延迟进行精细建模。</p>
+<p>以 <code>mul reg0, reg1, reg2</code> 为例：</p>
+<ul>
+<li><code>reg0</code> 是目的寄存器，对应一个 SchedWrite（如 WriteIMul）</li>
+<li><code>reg1</code>、<code>reg2</code> 是源寄存器，对应两个 SchedRead（如 ReadIMul）</li>
+</ul>
+<p>TableGen 里的定义大致如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">def MUL : ALU_rr&lt;<span class="number">0b0000001</span>, <span class="number">0b000</span>, <span class="string">&quot;mul&quot;</span>, Commutable=<span class="number">1</span>&gt;,</span><br><span class="line">           Sched&lt;[WriteIMul, ReadIMul, ReadIMul]&gt;;</span><br><span class="line"></span><br><span class="line">let NumMicroOps = <span class="number">1</span>, ReleaseAtCycles = <span class="number">1</span>, Latency = <span class="number">3</span> in &#123;</span><br><span class="line">  def : WriteRes&lt;WriteIMul, [MUL]&gt;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>同理，<code>add</code> 指令也会有自己的 SchedWrite/SchedRead 绑定和资源建模，</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">def ADD : ALU_rr&lt;<span class="number">0b0000000</span>, <span class="number">0b000</span>, <span class="string">&quot;add&quot;</span>, Commutable=<span class="number">1</span>&gt;,</span><br><span class="line">          Sched&lt;[WriteIALU, ReadIALU, ReadIALU]&gt;;</span><br><span class="line"></span><br><span class="line">let NumMicroOps = <span class="number">1</span>, ReleaseAtCycles = <span class="number">1</span>, Latency = <span class="number">1</span> in &#123;</span><br><span class="line">  def : WriteRes&lt;WriteIALU, [ALU]&gt;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>通过这种方式，调度器可以在构建依赖图时，精确知道每个 <code>SchedWrite</code> 资源占用和延迟信息。而 <code>SchedRead</code> 另有它用。</p>
+<h4 id="ReadAdvance">ReadAdvance<a class="anchor" href="#ReadAdvance">·</a></h4>
+<p>实际硬件中，某些数据依赖可以通过旁路（forwarding）机制提前满足，而不必等到写操作的全部延迟周期结束。LLVM 用 <code>ReadAdvance</code> 来描述这种&quot;提前读取&quot;的能力。</p>
+<p><code>ReadAdvance</code> 的作用是：</p>
+<ul>
+<li>指定某个 SchedRead 对某个 SchedWrite 的依赖延迟可以减少多少周期</li>
+<li>这样可以精确建模数据前推、旁路等微架构优化</li>
+</ul>
+<p>假设有如下指令序列：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mul a0, a2, a3</span><br><span class="line">add a1, a0, a4</span><br></pre></td></tr></table></figure>
+<p>如果 <code>mul</code> 的 Latency = 3，且没有前推，则 <code>add</code> 需要等待 3 个周期：</p>
+<pre><code class="highlight mermaid">graph TD
+    MUL[mul a0, a2, a3]
+    ADD[add a1, a0, a4]
+    MUL -- &quot;RAW: Latency = 3&quot; --&gt; ADD</code></pre>
+<p>假设硬件支持前推，<code>add</code> 读取 <code>mul</code> 的结果时可以提前 1 个周期（ReadAdvance = 1），则只需等待 2 个周期：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">def : ReadAdvance&lt;ReadIALU, <span class="number">1</span>, [WriteIMul]&gt;; <span class="comment">// add 读取 mul 的结果可提前 1 个周期</span></span><br></pre></td></tr></table></figure>
+<pre><code class="highlight mermaid">graph TD
+    MUL[mul a0, a2, a3]
+    ADD[add a1, a0, a4]
+    MUL -- &quot;RAW: Latency = 2 (forward)&quot; --&gt; ADD</code></pre>
+<p>再看另一组指令：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">add a0, a2, a3</span><br><span class="line">mul a1, a0, a4</span><br></pre></td></tr></table></figure>
+<p>假设 <code>add</code> 的 Latency = 1，<code>mul</code> 没有前推，则 <code>mul</code> 需要等待 1 个周期：</p>
+<pre><code class="highlight mermaid">graph TD
+    ADD[add a0, a2, a3]
+    MUL[mul a1, a0, a4]
+    ADD -- &quot;RAW: Latency = 1&quot; --&gt; MUL</code></pre>
+<p>如果 <code>mul</code> 读取 <code>add</code> 的结果也支持前推（ReadAdvance = 1），则可以实现 0 周期依赖：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">def : ReadAdvance&lt;ReadIMul, <span class="number">1</span>, [WriteIALU]&gt;; <span class="comment">// mul 读取 add 的结果可提前 1 个周期</span></span><br></pre></td></tr></table></figure>
+<pre><code class="highlight mermaid">graph TD
+    ADD[add a0, a2, a3]
+    MUL[mul a1, a0, a4]
+    ADD -- &quot;RAW: Latency = 0 (forward)&quot; --&gt; MUL</code></pre>
+<p>有了 <code>ReadAdvance</code>，调度器就可以灵活地表达不同指令对之间的真实依赖延迟了。</p>
+<h3 id="Summary">Summary<a class="anchor" href="#Summary">·</a></h3>
+<p>至此，LLVM 调度模型的核心建模思路已经完整梳理。对于一个典型的顺序核流水线，调度模型的编写流程可以总结为：</p>
+<ol>
+<li>定义资源（功能单元）
+<ul>
+<li>使用 <code>ProcResource</code> 描述流水线中各类功能单元及其数量。</li>
+</ul>
+</li>
+<li>定义调度模型（SchedMachineModel）
+<ul>
+<li>指定发射宽度、默认延迟等。</li>
+</ul>
+</li>
+<li>为每类 SchedWrite 绑定资源和延迟（WriteRes）
+<ul>
+<li>明确每种写操作对资源的占用和延迟。</li>
+</ul>
+</li>
+<li>通过 SchedRead/ReadAdvance 精细建模数据依赖
+<ul>
+<li>用 <code>ReadAdvance</code> 灵活修正不同指令对之间的实际依赖延迟，准确反映硬件的旁路能力。</li>
+</ul>
+</li>
+</ol>
+<p>顺序核和乱序核的主要区别在于是否需要建模保留站（BufferSize），流水线资源、延迟、数据依赖的建模方式是通用的。因此只要掌握了上述流程，结合实际硬件流水线图和白皮书文档，就可以高效地为自己的目标架构编写出准确的 LLVM 调度模型。</p>
+<h2 id="GCC-Scheduling-Model">GCC Scheduling Model<a class="anchor" href="#GCC-Scheduling-Model">·</a></h2>
+<p>由于我没有完整写过 GCC 的调度模型文件，不了解其完整的框架，只是阅读过其调度模型文件，这里主要介绍 GCC 调度模型部分基础语法和与 LLVM 的语法进行对比，不详细解释其中的细节了，没有提到的以及具体语法细节也可以看<a target="_blank" rel="noopener" href="https://gcc.gnu.org/onlinedocs/gccint/Processor-pipeline-description.html">官方文档</a>。</p>
+<h3 id="FuncUnits-description-2">FuncUnits description<a class="anchor" href="#FuncUnits-description-2">·</a></h3>
+<p>GCC 使用 <code>define_automaton</code> 定义自动机，再用 <code>define_cpu_unit</code> 绑定功能单元，</p>
+<figure class="highlight lisp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">(<span class="name">define_automaton</span> <span class="string">&quot;core&quot;</span>)</span><br><span class="line">(<span class="name">define_cpu_unit</span> <span class="string">&quot;alu,mul,div,lsu&quot;</span> <span class="string">&quot;core&quot;</span>)</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>define_automaton</code> 声明一个自动机</li>
+<li><code>define_cpu_unit</code> 声明一个或多个功能单元，并绑定到自动机</li>
+</ul>
+<p>这和 LLVM 的 <code>ProcResource</code> 类似。这样就定义了四个功能单元，并且它们的数量都为 1。这里需要注意的是，GCC 并没有提供定义多个相同功能单元的语法，也就是说，如果需要定义两个 alu，可以定义成 alu0 和 alu1。</p>
+<p>并且，GCC 的调度模型也不包含单独的 <code>issue_width</code> 变量定义，我们在之前说过，发射通路本质也是一种资源，GCC 可以直接使用 <code>define_cpu_unit</code> 来定义。</p>
+<figure class="highlight lisp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">(<span class="name">define_cpu_unit</span> <span class="string">&quot;pipe0&quot;</span> <span class="string">&quot;core&quot;</span>)</span><br><span class="line">(<span class="name">define_cpu_unit</span> <span class="string">&quot;pipe1&quot;</span> <span class="string">&quot;core&quot;</span>)</span><br></pre></td></tr></table></figure>
+<h3 id="Instruction-description-2">Instruction description<a class="anchor" href="#Instruction-description-2">·</a></h3>
+<p>GCC 用 <code>define_insn_reservation</code> 描述每类指令的延迟和资源占用，</p>
+<figure class="highlight lisp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">(<span class="name">define_insn_reservation</span> <span class="string">&quot;alu_insn&quot;</span> <span class="number">1</span></span><br><span class="line">  (<span class="name">and</span> (<span class="name">eq_attr</span> <span class="string">&quot;tune&quot;</span> <span class="string">&quot;core&quot;</span>)</span><br><span class="line">       (<span class="name">eq_attr</span> <span class="string">&quot;type&quot;</span> <span class="string">&quot;shift,nop,logical&quot;</span>))</span><br><span class="line">  <span class="string">&quot;pipe0+alu0 | pipe1+alu1&quot;</span>)</span><br></pre></td></tr></table></figure>
+<ul>
+<li><code>alu_insn</code> 是 define_insn_reservation 的名字</li>
+<li><code>1</code> 是该类型指令的 latency</li>
+<li><code>and</code>是过滤条件，这里筛选了 <code>core</code> 架构下的  <code>shift,nop,logical</code> 指令</li>
+<li><code>pipe0+alu0 | pipe1+alu1</code> 是资源占用描述</li>
+</ul>
+<p>这里的意思是移位运算，逻辑运算，以及<code>nop</code>的 latency 均为 1，并且第一个周期占用 <code>pipe0+alu0</code> 或者 <code>pipe1+alu1</code>。</p>
+<p>这和 LLVM 的 <code>WriteRes</code> 用途类似。</p>
+<p>资源占用描述也可以更复杂一点，如下表示 <code>core</code> 架构下的  <code>imul</code> 指令 latency 均为 3，第一个周期占用 <code>pipe0+alu0</code> 或者 <code>pipe1+alu1</code>，第二个和第三个周期占用 <code>mul</code> 单元。</p>
+<figure class="highlight lisp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">(<span class="name">define_insn_reservation</span> <span class="string">&quot;mul_insn&quot;</span> <span class="number">3</span></span><br><span class="line">  (<span class="name">and</span> (<span class="name">eq_attr</span> <span class="string">&quot;tune&quot;</span> <span class="string">&quot;core&quot;</span>)</span><br><span class="line">       (<span class="name">eq_attr</span> <span class="string">&quot;type&quot;</span> <span class="string">&quot;imul&quot;</span>))</span><br><span class="line">  <span class="string">&quot;pipe0+alu0 | pipe1+alu1, mul*2&quot;</span>)</span><br></pre></td></tr></table></figure>
+<h3 id="Forwarding-description">Forwarding description<a class="anchor" href="#Forwarding-description">·</a></h3>
+<p>GCC 用 <code>define_bypass</code> 显式描述不同指令对之间的旁路（bypass），即某些指令对的依赖延迟可以异于默认值，</p>
+<figure class="highlight lisp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">(<span class="name">define_bypass</span> <span class="number">1</span> <span class="string">&quot;mul_insn&quot;</span> <span class="string">&quot;alu_insn&quot;</span>)</span><br></pre></td></tr></table></figure>
+<ul>
+<li>表示 <code>alu_insn</code> 读取 <code>mul_insn</code> 结果时，延迟为 1，而不是默认 3</li>
+</ul>
+<p>这和 LLVM 的 <code>ReadAdvance</code> 有些差别。<code>def : ReadAdvance&lt;ReadIALU, 1, [WriteIMul]&gt;</code> 含义是，alu 指令读取 mul 的结果可提前 1 个周期，而 GCC 中的表示延迟就是 1 个周期。</p>
+<h2 id="Reference">Reference<a class="anchor" href="#Reference">·</a></h2>
+<ol>
+<li><a target="_blank" rel="noopener" href="https://myhsu.xyz/llvm-sched-model-1/">myhsu’s blog</a></li>
+<li><a target="_blank" rel="noopener" href="https://gcc.gnu.org/onlinedocs/gccint/Processor-pipeline-description.html">GCC’s Processor-pipeline-description doc</a></li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/instruction-scheduling/" rel="tag"># instruction scheduling</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/05/27/Scheduling-Models-2/" rel="prev" title="What We Need in a Scheduling Model">
+                  <i class="fa fa-angle-left"></i> What We Need in a Scheduling Model
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments utterances-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">yinghao</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/andreww0210" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="utterances" type="application/json">{"enable":true,"repo":"andreww0210/andreww0210.github.io","issue_term":"pathname","theme":"github-dark"}</script>
+<script src="/js/third-party/comments/utterances.js" defer></script>
+
+</body>
+</html>
