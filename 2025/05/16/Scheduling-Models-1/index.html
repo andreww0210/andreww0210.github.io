@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#222" media="(prefers-color-scheme: dark)"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"andreww0210.github.io","root":"/","images":"/images","scheme":"Pisces","darkmode":true,"version":"8.23.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"always","padding":18,"offset":12},"hljswrap":true,"codeblock":{"theme":{"light":"default","dark":"stackoverflow-dark"},"prism":{"light":"prism","dark":"prism-dark"},"copy_button":{"enable":true,"style":"mac"},"fold":{"enable":false,"height":500},"language":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":"utterances","storage":true,"lazyload":false,"nav":null,"activeClass":"utterances"},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"Searching...","empty":"We didn't find any results for the search: ${query}","hits_time":"${hits} results found in ${time} ms","hits":"${hits} results found"}}</script><script src="/js/config.js" defer></script>
+
+    <meta name="description" content="Posts in This Series·  Understanding In-Order Pipelines and Pipeline Stalls What We Need in a Scheduling Model Scheduling Model: GCC and LLVM Perspectives Tuning Your Scheduling Model for Better Perfo">
+<meta property="og:type" content="article">
+<meta property="og:title" content="In-Order Pipeline and Pipeline Stalls">
+<meta property="og:url" content="https://andreww0210.github.io/2025/05/16/Scheduling-Models-1/index.html">
+<meta property="og:site_name" content="andreww&#39;s blog">
+<meta property="og:description" content="Posts in This Series·  Understanding In-Order Pipelines and Pipeline Stalls What We Need in a Scheduling Model Scheduling Model: GCC and LLVM Perspectives Tuning Your Scheduling Model for Better Perfo">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://andreww0210.github.io/imgs/In-Order-Pipeline-and-Pipeline-Stalls/image-p670-funcunit.png">
+<meta property="article:published_time" content="2025-05-16T14:19:29.000Z">
+<meta property="article:modified_time" content="2025-09-30T07:38:49.686Z">
+<meta property="article:author" content="yinghao">
+<meta property="article:tag" content="instruction scheduling">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://andreww0210.github.io/imgs/In-Order-Pipeline-and-Pipeline-Stalls/image-p670-funcunit.png">
+
+
+<link rel="canonical" href="https://andreww0210.github.io/2025/05/16/Scheduling-Models-1/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"en","comments":true,"permalink":"https://andreww0210.github.io/2025/05/16/Scheduling-Models-1/","path":"2025/05/16/Scheduling-Models-1/","title":"In-Order Pipeline and Pipeline Stalls"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>In-Order Pipeline and Pipeline Stalls | andreww's blog</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-SSRWPJJEL4"></script>
+  <script class="next-config" data-name="google_analytics" type="application/json">{"tracking_id":"G-SSRWPJJEL4","only_pageview":false,"measure_protocol_api_secret":null}</script>
+  <script src="/js/third-party/analytics/google-analytics.js" defer></script>
+
+
+
+
+
+
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous" defer></script>
+<script src="/js/utils.js" defer></script><script src="/js/motion.js" defer></script><script src="/js/sidebar.js" defer></script><script src="/js/next-boot.js" defer></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous" defer></script>
+<script src="/js/third-party/search/local-search.js" defer></script>
+
+
+  <script class="next-config" data-name="mermaid" type="application/json">{"enable":true,"theme":{"light":"default","dark":"dark"},"js":{"url":"https://cdnjs.cloudflare.com/ajax/libs/mermaid/11.5.0/mermaid.min.js","integrity":"sha256-2obLuIPcceEhkE3G09G33hBdmE55ivVcZUlcKcGNHjU="}}</script>
+  <script src="/js/third-party/tags/mermaid.js" defer></script>
+
+
+
+
+
+  
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-SSRWPJJEL4"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-SSRWPJJEL4');
+</script>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">andreww's blog</p>
+      <i class="logo-line"></i>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="Search" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="Searching..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Posts-in-This-Series"><span class="nav-number">1.</span> <span class="nav-text">Posts in This Series</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Extended-in-order-pipeline"><span class="nav-number">2.</span> <span class="nav-text">Extended in-order pipeline</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Extended-EX-stage-pipeline"><span class="nav-number">2.1.</span> <span class="nav-text">Extended EX stage pipeline</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Pipelined-or-Not-Pipelined"><span class="nav-number">2.2.</span> <span class="nav-text">Pipelined or Not-Pipelined</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Real-Pipeline"><span class="nav-number">2.3.</span> <span class="nav-text">Real Pipeline</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Pipeline-Stalls"><span class="nav-number">3.</span> <span class="nav-text">Pipeline Stalls</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Types-of-stall"><span class="nav-number">3.1.</span> <span class="nav-text">Types of stall</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#What-can-be-solved-by-the-scheduler"><span class="nav-number">3.2.</span> <span class="nav-text">What can be solved by the scheduler?</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#References"><span class="nav-number">4.</span> <span class="nav-text">References</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="yinghao"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">yinghao</p>
+  <div class="site-description" itemprop="description">New blogger sharing thoughts and learnings. Comments and emails welcome!</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">6</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/andreww0210" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;andreww0210" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:itsyinghao@gmail.com" title="E-Mail → mailto:itsyinghao@gmail.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+          <div class="recent-posts">
+            <div class="links-of-blogroll-title">
+              <i class="fa fa-history fa-fw"></i> Recent Posts
+            </div>
+            <ul class="recent-posts-list">
+              
+              
+                <li class="recent-posts-item">
+                  <a href="/2025/09/30/Matmul/" title="从矩阵乘法代码看编译器的自动优化">从矩阵乘法代码看编译器的自动优化</a>
+                </li>
+              
+                <li class="recent-posts-item">
+                  <a href="/2025/06/19/Scheduling-Models-3/" title="Scheduling Model:GCC and LLVM Perspectives">Scheduling Model:GCC and LLVM Perspectives</a>
+                </li>
+              
+                <li class="recent-posts-item">
+                  <a href="/2025/05/27/Scheduling-Models-2/" title="What We Need in a Scheduling Model">What We Need in a Scheduling Model</a>
+                </li>
+              
+                <li class="recent-posts-item">
+                  <a href="/2025/05/16/Scheduling-Models-1/" title="In-Order Pipeline and Pipeline Stalls">In-Order Pipeline and Pipeline Stalls</a>
+                </li>
+              
+                <li class="recent-posts-item">
+                  <a href="/2023/11/17/My-Hello-World/" title="It's my Hello,World!">It's my Hello,World!</a>
+                </li>
+              
+                <li class="recent-posts-item">
+                  <a href="/2022/02/10/How-to-use-hexo/" title="How to use hexo">How to use hexo</a>
+                </li>
+              
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://andreww0210.github.io/2025/05/16/Scheduling-Models-1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="yinghao">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="andreww's blog">
+      <meta itemprop="description" content="New blogger sharing thoughts and learnings. Comments and emails welcome!">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="In-Order Pipeline and Pipeline Stalls | andreww's blog">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          In-Order Pipeline and Pipeline Stalls
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">Posted on</span>
+
+      <time title="Created: 2025-05-16 22:19:29" itemprop="dateCreated datePublished" datetime="2025-05-16T22:19:29+08:00">2025-05-16</time>
+    </span>
+
+  
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h2 id="Posts-in-This-Series">Posts in This Series<a class="anchor" href="#Posts-in-This-Series">·</a></h2>
+<ol>
+<li><a href="/2025/05/16/Scheduling-Models-1/">Understanding In-Order Pipelines and Pipeline Stalls</a></li>
+<li><a href="/2025/05/27/Scheduling-Models-2/">What We Need in a Scheduling Model</a></li>
+<li><a href="/2025/06/19/Scheduling-Models-3/">Scheduling Model: GCC and LLVM Perspectives</a></li>
+<li>Tuning Your Scheduling Model for Better Performance(TODO)</li>
+</ol>
+<h2 id="Extended-in-order-pipeline">Extended in-order pipeline<a class="anchor" href="#Extended-in-order-pipeline">·</a></h2>
+<h3 id="Extended-EX-stage-pipeline">Extended EX stage pipeline<a class="anchor" href="#Extended-EX-stage-pipeline">·</a></h3>
+<blockquote>
+<p>我不想在这里讨论基本的五级顺序流水线概念，你可以在任何一本介绍计算机体系结构的书上找到相关的内容，所以我会假设你已经了解基本的顺序流水线知识、流水线冒险（结构冒险、数据冒险、控制冒险）、数据前推，如果你对提到的任何关键词有疑问，请先补充相关的知识 😉</p>
+</blockquote>
+<pre><code class="highlight mermaid">flowchart LR
+    IF[IF]
+    ID[ID]
+    EX[EX]
+    MEM[MEM]
+    WB[WB]
+
+    IF --&gt; ID
+    ID --&gt; EX
+    EX --&gt; MEM
+    MEM --&gt; WB</code></pre>
+<p>如上图，基本的五级流水线（取指，译码，执行，访存，写回）由于做了简化，并没有暴露其中的细节。从图中看起来所有的执行单元被抽象成一个 EX stage，而真实的 CPU 流水线不仅要处理基本的整数运算，还需要处理浮点运算以及它们各自的加减乘除，所以一个完整的 EX stage 至少会包括 ALU 单元运算，乘法除法器运算单元，浮点加减运算单元，浮点乘除运算单元。</p>
+<p>假设我们有一个可以处理各种整数运算，浮点加减乘除运算的流水线，从黑盒子的角度来看，它可能长成下图这个样子。</p>
+<span id="more"></span>
+<pre><code class="highlight mermaid">flowchart LR
+    IF[IF]
+    ID[ID]
+    INT_OP[Integer Unit]
+    FP_ADD[FP Add/Sub]
+    FP_MUL[FP Mul]
+    FP_DIV[FP DIV]
+    MUL[MUL/DIV]
+    MEM[MEM]
+    WB[WB]
+
+    IF --&gt;| | ID
+    ID --&gt;| | MUL
+    ID --&gt;| | FP_DIV
+    ID --&gt;| | INT_OP
+    ID --&gt;| | FP_ADD
+    ID --&gt;| | FP_MUL
+    MUL --&gt;| | MEM
+    INT_OP --&gt;| | MEM
+    FP_ADD --&gt;| | MEM
+    FP_MUL --&gt;| | MEM
+    FP_DIV --&gt;| | MEM
+    MEM --&gt;| | WB</code></pre>
+<blockquote>
+<p>不同硬件实现不同，可能有些流水线会把一些功能单元做合并或拆分，比如将 MUL 和 DIV 分开，分别负责整数乘法和除法。</p>
+</blockquote>
+<p>假设我们现在有这样一段汇编代码，</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">add    a0, a1  --&gt; integer unit</span><br><span class="line">mul    a2, a3  --&gt; mul/div</span><br><span class="line">fp_mul a4, a5  --&gt; fp mul</span><br><span class="line">fp_div a6, a7  --&gt; fp div</span><br></pre></td></tr></table></figure>
+<p>当每条指令走过 ID 阶段以后，会进入各自的功能单元执行，互不干扰。</p>
+<h3 id="Pipelined-or-Not-Pipelined">Pipelined or Not-Pipelined<a class="anchor" href="#Pipelined-or-Not-Pipelined">·</a></h3>
+<p>像大部分简单的 ALU 指令，比如加减法指令，通常只需要一个周期就能够完成，但由于存在长周期指令，比如，乘法指令，除法指令，由于其本身硬件实现的复杂性，所以基本上不可能一个在周期内完成（除非你压缩 CPU 的频率，让其一个周期的时间变长，但这没有意义），所以实际上每个功能单元占用的周期数是不同的。</p>
+<p>假设下面列举的流水线都是单发流水线，并且我们所有的功能单元同一时间只能执行一条指令，也就是说，同一周期，当进入一条指令以后，就不能再进入第二条使用相同功能单元的指令了。当出现如下顺序的汇编时，</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mul a0, a1</span><br><span class="line">mul a2, a3</span><br></pre></td></tr></table></figure>
+<p>如果 <code>mul</code> 指令不能在一个周期完成执行，下一条 <code>mul</code> 就会进入在 <code>MUL/DIV</code> 功能单元之前被阻塞住，也就是出现了流水线暂停的行为。</p>
+<p>上述对 <code>MUL/DIV</code> 功能单元的描述，意思就是说，这个功能单元是非流水线化的（Not-Pipelined）。</p>
+<p>显然这种流水线是非常慢的，会出现大量因为功能单元被占用导致的流水线暂停，所以这里我们可以引入流水线化（Pipelined）的功能单元来进行加速，允许多个需要同一功能单元的指令同时进行。</p>
+<pre><code class="highlight mermaid">flowchart LR
+    IF[IF]
+    ID[ID]
+    INT_OP[Integer Unit]
+    FP_ADD0[FP Add/Sub Stage 0]
+    FP_ADD1[FP Add/Sub Stage 1]
+    FP_ADD2[FP Add/Sub Stage 2]
+    FP_MUL0[FP Mul Stage 0]
+    FP_MUL1[FP Mul Stage 1]
+    FP_MUL2[FP Mul Stage 2]
+    FP_MUL3[FP Mul Stage 3]
+    FP_DIV[FP DIV]
+    MUL0[MUL/DIV Stage 0]
+    MUL1[MUL/DIV Stage 1]
+    MUL2[MUL/DIV Stage 2]
+    MEM[MEM]
+    WB[WB]
+
+    IF --&gt;| | ID
+    ID --&gt;| | MUL0
+    ID --&gt;| | FP_DIV
+    ID --&gt;| | INT_OP
+    ID --&gt;| | FP_ADD0
+    ID --&gt;| | FP_MUL0
+    INT_OP --&gt;| | MEM
+    MUL2 --&gt;| | MEM
+    FP_ADD2 --&gt;| | MEM
+    FP_MUL3 --&gt;| | MEM
+    FP_DIV --&gt;| | MEM
+    MEM --&gt;| | WB
+
+    MUL0 --&gt; MUL1 
+    MUL1 --&gt; MUL2
+
+    FP_ADD0 --&gt; FP_ADD1
+    FP_ADD1 --&gt; FP_ADD2
+
+    FP_MUL0 --&gt; FP_MUL1
+    FP_MUL1 --&gt; FP_MUL2
+    FP_MUL2 --&gt; FP_MUL3</code></pre>
+<p>为了解决上述性能瓶颈，我们将 <code>MUL/DIV</code> 单元流水线化至三级：</p>
+<ul>
+<li>Stage 0：对操作数进行部分积预处理；</li>
+<li>Stage 1：计算部分积；</li>
+<li>Stage 2：生成最终结果并写入目标寄存器。</li>
+</ul>
+<blockquote>
+<p>这里只是举个例子，真实的情况大概率与我所说的不同，这里只是帮助理解如何进行功能单元的流水线化，具体乘法器到底是如何实现，要去阅读相关资料。</p>
+</blockquote>
+<p>在满载状态下，该流水线每个周期可以接受一条新的乘除法指令。虽然每条指令仍然需要 3 个周期才能完成，但由于各阶段可并发运行，总体吞吐率显著提升。</p>
+<p>在图中，<code>FP Mul</code> 单元，<code>Mul/Div</code> 单元以及 <code>FP Add/Sub</code> 单元均已被流水线化，该流水线可以同时执行四条浮点乘法指令，三条整数乘除法指令，三条浮点加减法指令，而 <code>FP DIV</code>由于没有流水线化，同一时刻只能有一条指令位于该功能单元内。</p>
+<blockquote>
+<p>这里 <code>Integer Unit</code>也是流水线化的，因为本身就用于执行单周期指令。</p>
+</blockquote>
+<p>当再次出现如下顺序的汇编时，流水线将不会因为资源占用导致暂停了。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mul a0, a1</span><br><span class="line">mul a2, a3</span><br></pre></td></tr></table></figure>
+<blockquote>
+<ol>
+<li>大部分功能单元都是流水线化的，但是像 <code>FP Div</code> 这种使用频率很少的功能单元，即使做成非流水线化，通常情况下很少会导致流水线暂停。（本身使用<code>FP Div</code>功能单元的指令就比较少，就算出现了多条使用该功能单元的指令，调度器也不会将它们排在一起。）因此，将使用频率很少的功能单元做成非流水线化的，不仅可以减少芯片流水线复杂度，也不会有明显的负面影响。</li>
+<li>这里把功能单元拆成多个 stages 是为了帮助理解，实际的流水线图不会这么画，一个功能单元是否是流水线化的也需要参考对应的白皮书文档。（很多流水线的实际信息都是需要从白皮书中获取的。）</li>
+</ol>
+</blockquote>
+<h3 id="Real-Pipeline">Real Pipeline<a class="anchor" href="#Real-Pipeline">·</a></h3>
+<p>让我们来看一个真实的流水线图，这是晶心科技 <code>Andes-D45</code> 的流水线图。</p>
+<figure>
+  <img
+    src="/imgs/In-Order-Pipeline-and-Pipeline-Stalls/45-series-pipeline.jpg"
+    alt="Andes-D45 Pipeline">
+  <figcaption>
+    Andes-D45 Pipeline (From 
+    <a target="_blank" rel="noopener" href="https://www.andestech.com/en/2019/12/04/andes-45-series-expands-risc-v-high-end-processors-8-stage-superscalar-processor-balances-high-performance-power-efficiency-and-real-time-determinism-with-rich-risc-v-ecosystem/">
+      andestech.com
+    </a>
+    )
+  </figcaption>
+</figure>
+<p>对应的流水线简化图如下，</p>
+<pre><code class="highlight mermaid">flowchart LR
+    %% Issue Paths
+    Issue0[Slot 0]
+    Issue1[Slot 1]
+
+    %% Pipelines
+    ALU0[ALU0]
+    ALU1[ALU1]
+    LDST[AGU + LD/ST]
+    FP[FP Pipeline]
+    MULDIV[MUL/DIV Pipeline]
+    DSP[DSP Pipeline]
+
+    %% Connections
+    Issue0 --&gt; ALU0
+    Issue0 --&gt; ALU1
+    Issue0 --&gt; LDST
+    Issue0 --&gt; FP
+    Issue0 --&gt; MULDIV
+    Issue0 --&gt; DSP</code></pre>
+<p>D45 由于是双发的流水线，一个周期会发射两条指令，考虑到 ALU 指令是最频繁的，为了可以同时双发两条 ALU 指令，它这里设置了两条 ALU 通路，也就是说，当出现下面两条汇编指令同时发射时，它们可以分别占用两条 ALU 通路，而不会导致流水线暂停。（可以想到，如果只有一条 ALU 通路的话，那么这里两条 <code>add</code> 指令就没法同时发射了，因为会有资源冲突，流水线会暂停。）</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">add a0, a1  --&gt; slot 0 -- use ALU0</span><br><span class="line">add a2, a3  --&gt; slot 1 -- use ALU1</span><br></pre></td></tr></table></figure>
+<p>D45 的流水线是非常简单的，没有什么过多需要描述的地方。</p>
+<blockquote>
+<ol>
+<li>D45 的 ALU 还有一个特殊的地方，它将 ALU stages 划分为两个 stages，EX stage 和 LX stage（L 意味着 Later），这里设计的意图，可能是为了减少数据冲突导致的暂停。这个并不是主要要讨论的问题。</li>
+<li>DSP 单元是为了执行 Andes RISCV-P Extension 的特殊指令。</li>
+</ol>
+</blockquote>
+<p>另一个是 Sifive-P670 的流水线，它是一个乱序 4 发射的流水线，看起来可能稍微复杂一点，</p>
+<figure>
+  <img
+    src="/imgs/In-Order-Pipeline-and-Pipeline-Stalls/SiFive-P670-detailed-pipeline-overview.png"
+    alt="Sifive-P670 Pipeline">
+  <figcaption>
+    Sifive-P670 Pipeline (From 
+    <a target="_blank" rel="noopener" href="https://www.cnx-software.com/2022/11/02/sifive-p670-and-p470-risc-v-processors-add-risc-v-vector-extensions/">
+      cnx-software.com
+    </a>
+    )
+  </figcaption>
+</figure>
+从图上看，可能会感觉功能单元这么多又这么复杂，我们在这里主要看它功能单元的流水线构成，因此可以剖除乱序的单元，以及 Cache 等单元来看，也就是下图红框中的部分。
+<p><img src="/imgs/In-Order-Pipeline-and-Pipeline-Stalls/image-p670-funcunit.png" alt="image-p670-funcunit"></p>
+<p>对应的流水线简化图，可以表示成如下形式，</p>
+<pre><code class="highlight mermaid">flowchart LR
+    %% Issue paths
+    Issue0[Slot 0]
+    Issue1[Slot 1]
+    Issue2[Slot 2]
+    Issue3[Slot 3]
+
+    %% ALU Pipelines
+    ALU_FULL[ALU0: ALU + MUL + DIV + I2F]
+    ALU_ONLY[ALU1: ALU]
+    BR0[BR0: BR]
+    BR1[BR1: BR]
+
+    %% LD/SD Pipelines
+    LDST0[LD/ST0: AGU + LD/ST]
+    LDST1[LD/ST1: AGU + LD/ST]
+
+    %% FP Pipelines
+    FP0[FP0: FMAC + FADD + FMUL + I2F]
+    FP1[FP1: FMAC + FADD + FMUL + FDIV]
+
+    %% Vector Pipelines
+    VEC0[Vector0: ALU + DIV]
+    VEC1[Vector1: ALU + V2S]
+
+    %% Connections from Issue paths
+    Issue0 --&gt; ALU_FULL
+    Issue0 --&gt; ALU_ONLY
+    Issue0 --&gt; BR0
+    Issue0 --&gt; BR1
+
+    Issue0 --&gt; LDST0
+    Issue0 --&gt; LDST1
+
+    Issue0 --&gt; FP0
+    Issue0 --&gt; FP1
+
+    Issue0 --&gt; VEC0
+    Issue0 --&gt; VEC1</code></pre>
+<p>如果我们把它当做一个四发射顺序核来看的话，这个流水线在遇到如下汇编的时候，</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">mul a1, a1, a2    	--&gt; solt0 -- use the ALU0 pipe</span><br><span class="line">beqz a3, .label0  	--&gt; solt1 -- use the BR0 pipe</span><br><span class="line">addi a0, a0, 1    	--&gt; solt2 -- use the ALU1 pipe</span><br><span class="line">beqz a4, .label1  	--&gt; solt3 -- use the BR1 pipe</span><br><span class="line"></span><br><span class="line">lw a5, 8(sp)		--&gt;	slot0 -- use the LD/ST0 pipe</span><br><span class="line">lw a6, 12(sp)		--&gt;	slot1 -- use the LD/ST1 pipe</span><br><span class="line">fadd fa3, fa4, fa5	--&gt;	slot2 -- use the FP0 pipe</span><br><span class="line">fdiv fa0, fa1, fa2	--&gt;	slot3 -- use the FP1 pipe</span><br></pre></td></tr></table></figure>
+<h2 id="Pipeline-Stalls">Pipeline Stalls<a class="anchor" href="#Pipeline-Stalls">·</a></h2>
+<blockquote>
+<p>本文前面说了这么多，就是为了铺垫这个东西 😉</p>
+<p>我们这里暂时不考虑乱序核的情况，先理解顺序核中的性能损失情况，在此基础上再去理解乱序核会更好。</p>
+</blockquote>
+<h3 id="Types-of-stall">Types of stall<a class="anchor" href="#Types-of-stall">·</a></h3>
+<p>现代 CPU 可能因为各种各样的原因导致流水线性能损失，</p>
+<p>比如 iCache miss 会导致取指阶段无法及时取到下一条指令，流水线前端得不到新指令，流水线只能空转等待，从而引发性能损失。而即使取到了指令，如果一条指令在解码后被翻译成多个微操作（micro-ops），而流水线的发射宽度（Issue width）不匹配时，需要多个周期才能完成当前所有微操作的发射，前端流水线同样会暂停。</p>
+<p>这些性能损失的根源都是因为前端流水线无法持续、稳定地提供指令给后端，通常被统称为流水线前端暂停。</p>
+<blockquote>
+<p>这种由于微操作数量与发射宽度不匹配导致的流水线前端暂停（后面称之为发射阻塞），在 CISC 指令集中（如 x86）中较为常见，而 RISC 指令通常结构比较简单，一条汇编对应一到两个微操作，通常不会发生这种问题。</p>
+</blockquote>
+<p>又比如，当流水线中同时出现两条指令，它们需要相同的功能单元，而这条流水线只有一个该功能单元时，会发生结构冲突或资源冲突，流水线必须暂停等待上一条指令释放该资源。</p>
+<p>在 <code>Andes-D45</code> 流水线中，</p>
+<pre><code class="highlight mermaid">flowchart LR
+    %% Issue Paths
+    Issue0[Slot 0]
+    Issue1[Slot 1]
+
+    %% Pipelines
+    ALU0[ALU0]
+    ALU1[ALU1]
+    LDST[AGU + LD/ST]
+    FP[FP Pipeline]
+    MULDIV[MUL/DIV Pipeline]
+    DSP[DSP Pipeline]
+
+    %% Connections
+    Issue0 --&gt; ALU0
+    Issue0 --&gt; ALU1
+    Issue0 --&gt; LDST
+    Issue0 --&gt; FP
+    Issue0 --&gt; MULDIV
+    Issue0 --&gt; DSP</code></pre>
+<p>假如出现以下汇编，则由于乘法单元只有一个，同时双发两条 <code>mul</code>指令必然会导致流水线暂停，</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mul a0, a1, a2  --&gt; slot 0 -- use the MUL/DIV pipe</span><br><span class="line">mul a3, a4, a5  --&gt; slot 1 -- the MUL/DIV pipe was occupied, so it had to wait</span><br></pre></td></tr></table></figure>
+<p>进一步再看如下汇编，显然，这对汇编不会发生资源冲突，一个进入 <code>MUL/DIV</code>功能单元执行乘法运算，一个进入<code>ALU</code>功能单元执行加法指令，非常和谐。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mul a0, a1, a2  --&gt; slot 0 -- write `a0`, assuming it can be read after 2 cycles.</span><br><span class="line">add a3, a0, a5  --&gt; slot 1 -- read `a0` from `mul`, so it had to wait 2 cycles.</span><br></pre></td></tr></table></figure>
+<p>但是不和谐的地方在于，第二条<code>add</code>指令使用了前一条<code>mul</code>指令要写的值，这就是另一中很常见的冲突 – 数据冲突，数据冲突通常分为三类，写后读，读后写，写后写，对应数据依赖（True Dependency/Data Dependency），反依赖（Anti-Dependency），输出依赖（Output-Dependency），具体定义不在这里赘述。</p>
+<p>上述由于冲突导致的流水线损失，通常表现为流水线完全暂停等待冲突解除，被称为流水线后端暂停。</p>
+<h3 id="What-can-be-solved-by-the-scheduler">What can be solved by the scheduler?<a class="anchor" href="#What-can-be-solved-by-the-scheduler">·</a></h3>
+<p>既然本系列是介绍调度模型的，自然需要知道，调度器是用来解决哪些流水线暂停问题的。</p>
+<p>调度器的主要作用，是在代码局部，通常是在一个基本块内，进行指令重排布。它会在不影响代码逻辑正确性的情况下尽可能的减少可能的流水线暂停。所以这个问题就是，对指令进行重排布，可以解决掉哪些可能的流水线暂停？</p>
+<p>其实答案就是上节提到的几个流水线暂停的类型: 发射阻塞导致的前端流水线暂停，以及资源冲突，数据冲突导致的后端流水线暂停。</p>
+<blockquote>
+<p>发射阻塞，其实本质上也是一种资源冲突，相当于多个微操作在争夺比它们数量少的发射通路。但是这里分开来看会更好理解一些。</p>
+</blockquote>
+<pre><code class="highlight mermaid">flowchart LR
+    %% Issue Paths
+    Issue0[Slot 0]
+    Issue1[Slot 1]
+
+    %% Pipelines
+    ALU0[ALU0]
+    ALU1[ALU1]
+    LDST[AGU + LD/ST]
+    FP[FP Pipeline]
+    MULDIV[MUL/DIV Pipeline]
+    DSP[DSP Pipeline]
+
+    %% Connections
+    Issue0 --&gt; ALU0
+    Issue0 --&gt; ALU1
+    Issue0 --&gt; LDST
+    Issue0 --&gt; FP
+    Issue0 --&gt; MULDIV
+    Issue0 --&gt; DSP</code></pre>
+<p>还是以 D45 流水线举例，假设遇到如下汇编，流水线会如何执行？</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">mul a0, a1, a2</span><br><span class="line">mul a3, a4, a5</span><br><span class="line">add t0, a0, a3</span><br><span class="line">add t0, t2, 1</span><br><span class="line">add t1, t1, 1</span><br><span class="line">add a0, a0, 1</span><br><span class="line">add t3, t3, 1</span><br></pre></td></tr></table></figure>
+<p>首先，两条<code>mul</code>指令是不能双发的，因为它们同时需要使用 <code>MUL/DIV</code> 单元，所以第一个周期，它只能发射一条<code>mul</code>指令，第二条<code>mul</code>指令需要等到下一个周期才能发射。</p>
+<p>当两条<code>mul</code>发射以后，<code>add t0, a0, a3</code>由于与前两条<code>mul</code>都有数据依赖，假设<code>mul</code>发射以后 3 个周期，<code>add</code>指令才能读取这个操作数，则<code>add t0, a0, a3</code>需要停顿 3 个周期才能发射。而第 5 个周期，由于<code>add t0, a0, a3</code>和 <code>add t0, t2, 1</code>它们之间有输出依赖，仍然无法双发。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">-- cycle1 --</span><br><span class="line">mul a0, a1, a2</span><br><span class="line">-- cycle2 --</span><br><span class="line">mul a3, a4, a5</span><br><span class="line">-- cycle5 --</span><br><span class="line">add t0, a0, a3</span><br><span class="line">-- cycle6 --</span><br><span class="line">add t0, t2, 1</span><br><span class="line">-- cycle7 --</span><br><span class="line">add t1, t1, 1</span><br><span class="line">add a0, a0, 1</span><br><span class="line">-- cycle8 --</span><br><span class="line">add t3, t3, 1</span><br></pre></td></tr></table></figure>
+<p>让我们手动调度一下这个汇编代码，</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">mul a0, a1, a2</span><br><span class="line">add t1, t1, 1</span><br><span class="line">mul a3, a4, a5</span><br><span class="line">add t3, t3, 1</span><br><span class="line">add t0, a0, a3</span><br><span class="line">add a0, a0, 1</span><br><span class="line">add t0, t2, 1</span><br></pre></td></tr></table></figure>
+<p>在两条<code>mul</code>指令之间，插入一条<code>add t1, t1, 1</code>，消除了资源冲突导致的流水线暂停。在存在数据依赖的<code>mul</code>和<code>add</code>之间，插入一条<code>add t3, t3, 1</code>，虽然没有完全消除数据依赖导致的流水线暂停，但是相同的周期数内执行的指令数更多了。在存在输出依赖的两条<code>add</code>之间，插入一条<code>add a0, a0, 1</code>，消除了输出依赖导致的流水线暂停。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">-- cycle1 --</span><br><span class="line">mul a0, a1, a2</span><br><span class="line">add t1, t1, 1</span><br><span class="line">-- cycle2 --</span><br><span class="line">mul a3, a4, a5</span><br><span class="line">add t3, t3, 1</span><br><span class="line">-- cycle5 --</span><br><span class="line">add t0, a0, a3</span><br><span class="line">add a0, a0, 1</span><br><span class="line">-- cycle6 --</span><br><span class="line">add t0, t2, 1</span><br></pre></td></tr></table></figure>
+<p>总结来说，调度器通过重新排布指令的执行顺序，来缓解如下几类性能瓶颈：</p>
+<ul>
+<li>发射阻塞：例如某些复杂指令被翻译为多个微操作，无法在一个周期完成发射</li>
+<li>结构冲突 / 资源冲突：多条指令竞争同一个功能单元</li>
+<li>数据冲突：典型如写后读（RAW）依赖引起的等待</li>
+</ul>
+<blockquote>
+<p>而一些系统性延迟，如 Cache Miss（iCache 或 dCache）、分支预测失败等，通常不是调度器能直接解决的，这类 暂停更多依赖于体系结构本身的优化策略或预取机制。当前，编译器也有比如基本块重排布优化（BasicBlockPlacement），来解决分支预测问题。</p>
+</blockquote>
+<p>所以，调度器并不能解决所有类型的流水线暂停，但它在提升执行单元利用率、隐藏延迟、减少流水线空泡等方面是至关重要的。理解这一点，是编写调度模型之前必须要建立的认知基础。</p>
+<h2 id="References">References<a class="anchor" href="#References">·</a></h2>
+<ol>
+<li>计算机体系结构：量化研究方法（第6版）附录 C</li>
+<li><a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/22165299/what-are-stalled-cycles-frontend-and-stalled-cycles-backend-in-perf-stat-resul">What are Front-End Stalls and Back-End Stalls ? – from stackoverflow</a></li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/instruction-scheduling/" rel="tag"># instruction scheduling</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2023/11/17/My-Hello-World/" rel="prev" title="It&#39;s my Hello,World!">
+                  <i class="fa fa-angle-left"></i> It's my Hello,World!
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2025/05/27/Scheduling-Models-2/" rel="next" title="What We Need in a Scheduling Model">
+                  What We Need in a Scheduling Model <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+    <div class="comments utterances-container"></div>
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">yinghao</span>
+  </div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a>
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="Back to top">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/andreww0210" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+<script class="next-config" data-name="utterances" type="application/json">{"enable":true,"repo":"andreww0210/andreww0210.github.io","issue_term":"pathname","theme":"github-dark"}</script>
+<script src="/js/third-party/comments/utterances.js" defer></script>
+
+</body>
+</html>
